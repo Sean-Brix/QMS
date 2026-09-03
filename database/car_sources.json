@@ -1,0 +1,11 @@
+[
+  { "code": "IQA", "name": "Internal Audit Finding",     "description": "Nonconformity raised during an internal quality audit." },
+  { "code": "EAF", "name": "External Audit Finding",     "description": "Finding raised by a certification body or client auditor." },
+  { "code": "CCR", "name": "Customer Complaints",        "description": "Nonconformity traced to a customer complaint or return." },
+  { "code": "KPI", "name": "Key Performance Indicator",  "description": "Objective or target not met for the monitoring period." },
+  { "code": "MRA", "name": "Management Review Action Item", "description": "Action item arising from management review." },
+  { "code": "EPS", "name": "External Service Provider",  "description": "Nonconformity attributed to a supplier or subcontractor." },
+  { "code": "QSD", "name": "QMS System Deviation",       "description": "Deviation from the documented quality management system." },
+  { "code": "IQC", "name": "Incoming QC NC",             "description": "Nonconformity detected at incoming quality control." },
+  { "code": "OTH", "name": "Other Identified NC",        "description": "Any other identified nonconformity. Requires specification." }
+]

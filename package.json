@@ -1,0 +1,14 @@
+{
+  "name": "qms",
+  "private": true,
+  "version": "0.1.0",
+  "description": "QMS Online Repository and Corrective Action Report Management System \u2014 UI/UX prototype",
+  "scripts": {
+    "dev": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "preview": "npm --prefix client run preview",
+    "lint": "npm --prefix client run lint",
+    "setup": "npm --prefix client install",
+    "smoke": "npm --prefix client run smoke"
+  }
+}

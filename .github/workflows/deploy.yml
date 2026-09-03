@@ -1,0 +1,65 @@
+# Builds the client and publishes it to GitHub Pages on every push to main.
+#
+# The repository must have Pages enabled with "GitHub Actions" as the source
+# (Settings -> Pages -> Build and deployment -> Source).
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it half-published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm --prefix client ci
+
+      - name: Build
+        env:
+          # A project site lives at https://<user>.github.io/<repo>/, so every
+          # asset and route needs that prefix. Taking it from the repository
+          # name means renaming the repo does not break the build.
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: npm --prefix client run build
+
+      - name: Add the SPA fallback
+        # Pages serves 404.html for any path it has no file for. Making that a
+        # copy of index.html lets a deep link such as /cars/CAR-0001 — or a
+        # refresh on any screen — boot the app instead of showing a 404.
+        run: cp client/dist/index.html client/dist/404.html
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: client/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

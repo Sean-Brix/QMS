@@ -1,0 +1,40 @@
+{
+  "organization": {
+    "name": "Company Name, Inc.",
+    "systemName": "QMS Online Repository & CAR Management System",
+    "shortName": "QMS Portal",
+    "standard": "ISO 9001:2015",
+    "logoInitials": "QMS"
+  },
+  "car": {
+    "numberFormat": "CAR-{YYYY}-{####}",
+    "numberFormatNote": "Exact numbering format to be finalized with the QMS Department.",
+    "nextSequence": 16,
+    "replyDueDays": 14,
+    "dueSoonReminderDays": 3,
+    "autoFlagOverdue": true
+  },
+  "document": {
+    "dynamicWatermark": true,
+    "watermarkTemplate": "{FULLNAME} | {EMPLOYEE_NO} | {DATETIME} | UNCONTROLLED WHEN PRINTED",
+    "retainPreviousVersions": true,
+    "activeLabel": "ACTIVE",
+    "reviewReminderDays": 30,
+    "allowedFileTypes": ["PDF", "DOCX", "XLSX", "PNG", "JPG"],
+    "maxFileSizeMB": 25
+  },
+  "session": {
+    "idleTimeoutMinutes": 30,
+    "maxFailedLoginAttempts": 5,
+    "passwordMinLength": 8
+  },
+  "reporting": {
+    "periods": ["Weekly", "Monthly"],
+    "defaultPeriod": "Monthly"
+  },
+  "notifications": {
+    "inApp": true,
+    "email": false,
+    "emailNote": "Email notifications are planned as a future enhancement."
+  }
+}

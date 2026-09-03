@@ -1,0 +1,1226 @@
+[
+  {
+    "id": "CAR-0001",
+    "carNo": "CAR-2026-0001",
+    "status": "Closed",
+    "source": "IQA",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Calibration records for two digital calipers in the QC laboratory were not available during the internal audit.",
+      "isoClause": "7.1.5.2 Measurement traceability",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-02-10",
+      "replyDueDate": "2026-02-24",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-004",
+      "departmentId": "DEPT-003",
+      "dateSubmitted": "2026-02-20",
+      "signature": "A. Villanueva"
+    },
+    "problem": {
+      "description": "During the internal quality audit of the QC section, calibration certificates for caliper units CAL-014 and CAL-021 could not be presented. The calibration due date recorded in the master list had already lapsed by 18 days.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "Yes"
+    },
+    "rootCause": {
+      "explanation": "The calibration monitoring sheet was maintained manually and no reminder was set. The assigned custodian went on extended leave and the responsibility was not formally turned over.",
+      "analyzedBy": "USR-004",
+      "date": "2026-02-16"
+    },
+    "immediateAction": {
+      "action": "Both calipers were pulled out of service and tagged. Products measured within the affected period were re-verified with a calibrated unit; no out-of-spec result was found.",
+      "responsibleId": "USR-004",
+      "targetDate": "2026-02-13",
+      "signature": "A. Villanueva"
+    },
+    "correctiveAction": {
+      "action": "Calibration master list migrated to a shared tracker with automatic 30-day advance alerts. Turnover checklist updated to include calibration custodianship. Section heads briefed on 2026-02-19.",
+      "responsibleId": "USR-004",
+      "targetDate": "2026-03-15",
+      "signature": "A. Villanueva"
+    },
+    "verification": {
+      "closure": {
+        "notes": "Tracker verified in use. Both units recalibrated with valid certificates on file. Turnover checklist Rev 02 released.",
+        "verifiedBy": "USR-002",
+        "approvedBy": "USR-001",
+        "verificationDate": "2026-03-20",
+        "disposition": "CLOSED"
+      },
+      "effectiveness": {
+        "notes": "No lapsed calibration recorded for two consecutive monitoring cycles (April and May 2026).",
+        "validatedBy": "USR-002",
+        "approvedBy": "USR-001",
+        "result": "Pass",
+        "date": "2026-06-02"
+      }
+    },
+    "dateClosed": "2026-06-02",
+    "attachments": [
+      "ATT-001",
+      "ATT-002"
+    ],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0002",
+    "carNo": "CAR-2026-0002",
+    "status": "Closed",
+    "source": "CCR",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Customer reported mislabeled cartons in shipment SO-20260118 (wrong model number printed on 40 cartons).",
+      "isoClause": "8.5.2 Identification and traceability",
+      "ncType": "Major NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 1
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-01-22",
+      "replyDueDate": "2026-02-05",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-003",
+      "departmentId": "DEPT-002",
+      "dateSubmitted": "2026-02-03",
+      "signature": "R. Dela Cruz"
+    },
+    "problem": {
+      "description": "Customer received 40 cartons labeled Model X180 containing Model X200 units. The label roll was not changed after a model changeover on the packing line on 2026-01-16.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "No"
+    },
+    "rootCause": {
+      "explanation": "The changeover checklist did not include verification of the label roll against the production order. Operator relied on visual recall of the previous run.",
+      "analyzedBy": "USR-003",
+      "date": "2026-01-29"
+    },
+    "immediateAction": {
+      "action": "Affected cartons recalled and relabeled at the customer warehouse. 100% label verification implemented on all pending shipments of the same model family.",
+      "responsibleId": "USR-003",
+      "targetDate": "2026-01-26",
+      "signature": "R. Dela Cruz"
+    },
+    "correctiveAction": {
+      "action": "Line changeover procedure PRD-P-007 issued with a mandatory label-roll verification step signed off by the line leader. Scanner-based label check piloted on Line 2.",
+      "responsibleId": "USR-003",
+      "targetDate": "2026-03-12",
+      "signature": "R. Dela Cruz"
+    },
+    "verification": {
+      "closure": {
+        "notes": "PRD-P-007 Rev 01 released and effective 2026-03-12. Sign-off records sampled for three changeovers, all complete.",
+        "verifiedBy": "USR-002",
+        "approvedBy": "USR-001",
+        "verificationDate": "2026-03-18",
+        "disposition": "CLOSED"
+      },
+      "effectiveness": {
+        "notes": "No labeling complaint received for three months. Scanner check rolled out to Lines 1 and 3.",
+        "validatedBy": "USR-001",
+        "approvedBy": "USR-001",
+        "result": "Pass",
+        "date": "2026-06-20"
+      }
+    },
+    "dateClosed": "2026-06-20",
+    "attachments": [
+      "ATT-003"
+    ],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0003",
+    "carNo": "CAR-2026-0003",
+    "status": "Closed",
+    "source": "IQC",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Incoming lot of bearings accepted without the supplier mill certificate required by the inspection standard.",
+      "isoClause": "8.4.2 Type and extent of control",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-004",
+      "departmentId": "DEPT-003",
+      "dateIssued": "2026-03-02",
+      "replyDueDate": "2026-03-16",
+      "signature": "A. Villanueva"
+    },
+    "recipient": {
+      "userId": "USR-007",
+      "departmentId": "DEPT-006",
+      "dateSubmitted": "2026-03-12",
+      "signature": "M. Torres"
+    },
+    "problem": {
+      "description": "Lot RM-2026-0311 was released to the warehouse although the mill certificate was not attached to the incoming inspection report QC-F-002.",
+      "mayOccurElsewhere": "No",
+      "identifiedInRBT": "Yes"
+    },
+    "rootCause": {
+      "explanation": "Purchase order template did not state the certificate requirement, so the supplier did not transmit it with the delivery.",
+      "analyzedBy": "USR-007",
+      "date": "2026-03-08"
+    },
+    "immediateAction": {
+      "action": "Certificate requested and received from the supplier within two days. Lot re-reviewed and confirmed conforming.",
+      "responsibleId": "USR-007",
+      "targetDate": "2026-03-06",
+      "signature": "M. Torres"
+    },
+    "correctiveAction": {
+      "action": "Purchase order template revised to list required certificates per material class. Supplier quality agreement updated for all Class A suppliers.",
+      "responsibleId": "USR-007",
+      "targetDate": "2026-04-30",
+      "signature": "M. Torres"
+    },
+    "verification": {
+      "closure": {
+        "notes": "Revised PO template in use since 2026-04-05. Sampled five incoming lots, all with certificates attached.",
+        "verifiedBy": "USR-002",
+        "approvedBy": "USR-001",
+        "verificationDate": "2026-05-06",
+        "disposition": "CLOSED"
+      },
+      "effectiveness": {
+        "notes": "Zero missing-certificate findings in the May and June incoming inspection reviews.",
+        "validatedBy": "USR-004",
+        "approvedBy": "USR-001",
+        "result": "Pass",
+        "date": "2026-07-08"
+      }
+    },
+    "dateClosed": "2026-07-08",
+    "attachments": [],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0004",
+    "carNo": "CAR-2026-0004",
+    "status": "For Verification",
+    "source": "EAF",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Surveillance audit finding: competency records for three newly assigned machine operators were incomplete.",
+      "isoClause": "7.2 Competence",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-06-15",
+      "replyDueDate": "2026-06-29",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-006",
+      "departmentId": "DEPT-005",
+      "dateSubmitted": "2026-06-27",
+      "signature": "G. Lim"
+    },
+    "problem": {
+      "description": "Training evaluation forms for operators assigned to the CNC section in May 2026 were not completed. Certification of competency was granted based on verbal endorsement of the supervisor.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "No"
+    },
+    "rootCause": {
+      "explanation": "HR-P-005 does not define a hard gate between on-the-job training completion and issuance of the competency certificate. Documentation was treated as a follow-up task.",
+      "analyzedBy": "USR-006",
+      "date": "2026-06-22"
+    },
+    "immediateAction": {
+      "action": "Evaluation forms for the three operators completed and signed by the section head on 2026-06-19. Operators re-assessed against the skill matrix.",
+      "responsibleId": "USR-006",
+      "targetDate": "2026-06-20",
+      "signature": "G. Lim"
+    },
+    "correctiveAction": {
+      "action": "Revise HR-P-005 to make the signed evaluation form a precondition for certificate issuance. Add a monthly competency-record completeness check to the HR monitoring sheet.",
+      "responsibleId": "USR-006",
+      "targetDate": "2026-09-15",
+      "signature": "G. Lim"
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [
+      "ATT-004",
+      "ATT-005"
+    ],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0005",
+    "carNo": "CAR-2026-0005",
+    "status": "For Verification",
+    "source": "KPI",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "On-time delivery rate for Q2 2026 reached 88% against the 95% objective.",
+      "isoClause": "9.1.1 Monitoring, measurement, analysis and evaluation",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 1
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-07-06",
+      "replyDueDate": "2026-07-20",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-008",
+      "departmentId": "DEPT-007",
+      "dateSubmitted": "2026-07-17",
+      "signature": "J. Aquino"
+    },
+    "problem": {
+      "description": "Of 214 shipments in Q2, 26 were dispatched beyond the committed date. 19 of the delays were traced to picking delays caused by inaccurate bin locations after the warehouse relayout in April 2026.",
+      "mayOccurElsewhere": "No",
+      "identifiedInRBT": "Yes"
+    },
+    "rootCause": {
+      "explanation": "Bin location master data was not updated in the system after the April relayout. Pickers searched physically, adding an average of 40 minutes per order.",
+      "analyzedBy": "USR-008",
+      "date": "2026-07-12"
+    },
+    "immediateAction": {
+      "action": "Full physical bin audit conducted over two weekends. 312 bin locations corrected in the system.",
+      "responsibleId": "USR-008",
+      "targetDate": "2026-07-15",
+      "signature": "J. Aquino"
+    },
+    "correctiveAction": {
+      "action": "Relayout procedure to require a master-data update task with sign-off before the layout is declared live. Weekly cycle-count of 50 random bins introduced.",
+      "responsibleId": "USR-008",
+      "targetDate": "2026-09-30",
+      "signature": "J. Aquino"
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [
+      "ATT-006"
+    ],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0006",
+    "carNo": "CAR-2026-0006",
+    "status": "Under Review",
+    "source": "QSD",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Obsolete revision of form QMS-F-001 (Rev 05) still in circulation at the production office.",
+      "isoClause": "7.5.3 Control of documented information",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-002",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-08-05",
+      "replyDueDate": "2026-08-19",
+      "signature": "J. Cruz"
+    },
+    "recipient": {
+      "userId": "USR-003",
+      "departmentId": "DEPT-002",
+      "dateSubmitted": "2026-08-18",
+      "signature": "R. Dela Cruz"
+    },
+    "problem": {
+      "description": "A stack of printed CAR forms at Rev 05 was found in the production office pigeonhole. Rev 06 has been effective since 2026-02-01.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "No"
+    },
+    "rootCause": {
+      "explanation": "Printed stock of controlled forms is not tracked. When a new revision is released there is no recall step for hard copies already distributed.",
+      "analyzedBy": "USR-003",
+      "date": "2026-08-14"
+    },
+    "immediateAction": {
+      "action": "All Rev 05 copies collected and destroyed. Rev 06 printed and stamped CONTROLLED COPY with issue date.",
+      "responsibleId": "USR-003",
+      "targetDate": "2026-08-08",
+      "signature": "R. Dela Cruz"
+    },
+    "correctiveAction": {
+      "action": "Proposal: phase out hard-copy distribution and direct all users to the online repository. Where hard copies are required, log them in a distribution list with a recall step on revision.",
+      "responsibleId": "USR-003",
+      "targetDate": "2026-10-30",
+      "signature": "R. Dela Cruz"
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [
+      "ATT-007"
+    ],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0007",
+    "carNo": "CAR-2026-0007",
+    "status": "Under Review",
+    "source": "EPS",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Calibration service provider delivered certificates without traceability to national standards for three instruments.",
+      "isoClause": "8.4.1 Control of externally provided processes",
+      "ncType": "Major NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-004",
+      "departmentId": "DEPT-003",
+      "dateIssued": "2026-08-08",
+      "replyDueDate": "2026-08-22",
+      "signature": "A. Villanueva"
+    },
+    "recipient": {
+      "userId": "USR-007",
+      "departmentId": "DEPT-006",
+      "dateSubmitted": "2026-08-21",
+      "signature": "M. Torres"
+    },
+    "problem": {
+      "description": "Certificates issued for pressure gauges PG-04, PG-07 and PG-11 do not reference the reference standard used nor its traceability chain, contrary to the service agreement.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "Yes"
+    },
+    "rootCause": {
+      "explanation": "Supplier re-accreditation lapsed in June 2026 and was not detected because supplier monitoring is performed annually rather than on certificate expiry.",
+      "analyzedBy": "USR-007",
+      "date": "2026-08-17"
+    },
+    "immediateAction": {
+      "action": "Three instruments quarantined and re-calibrated by an accredited alternate provider. Supplier notified in writing.",
+      "responsibleId": "USR-007",
+      "targetDate": "2026-08-15",
+      "signature": "M. Torres"
+    },
+    "correctiveAction": {
+      "action": "Add accreditation-expiry tracking to the approved supplier list with a 60-day alert. Re-evaluate the provider; secure a second accredited provider as an alternate.",
+      "responsibleId": "USR-007",
+      "targetDate": "2026-10-15",
+      "signature": "M. Torres"
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [
+      "ATT-008",
+      "ATT-009"
+    ],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0008",
+    "carNo": "CAR-2026-0008",
+    "status": "For Revision",
+    "source": "IQA",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Preventive maintenance for the packing machine was performed 22 days beyond the scheduled date without a documented deferral approval.",
+      "isoClause": "7.1.3 Infrastructure",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": "Correction Action Not Accepted",
+      "recurrenceCount": 1
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-07-27",
+      "replyDueDate": "2026-08-28",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-009",
+      "departmentId": "DEPT-008",
+      "dateSubmitted": null,
+      "signature": null
+    },
+    "problem": {
+      "description": "PM schedule for PKG-02 indicated a due date of 2026-06-30. The maintenance checklist MNT-F-003 was accomplished on 2026-07-22. No deferral request was raised.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "No"
+    },
+    "rootCause": {
+      "explanation": "Submitted root cause stated only that the technician was assigned to a breakdown repair. QMS assessment: this describes the trigger, not the systemic cause, and does not explain the absence of a deferral request.",
+      "analyzedBy": "USR-009",
+      "date": "2026-08-05"
+    },
+    "immediateAction": {
+      "action": "PM completed on 2026-07-22 and machine condition verified as acceptable. No product impact identified.",
+      "responsibleId": "USR-009",
+      "targetDate": "2026-07-30",
+      "signature": "E. Cruz"
+    },
+    "correctiveAction": {
+      "action": "Reminder given to technicians to follow the PM schedule.",
+      "responsibleId": "USR-009",
+      "targetDate": "2026-08-31",
+      "signature": "E. Cruz"
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [
+      "ATT-010"
+    ],
+    "revision": {
+      "notes": "Root cause analysis does not reach a systemic cause and the corrective action is a reminder only, which does not prevent recurrence. Please re-analyze and propose a schedule-control mechanism including a documented deferral route.",
+      "returnedBy": "USR-001",
+      "returnedAt": "2026-08-14",
+      "dueDate": "2026-08-28",
+      "stage": "review"
+    }
+  },
+  {
+    "id": "CAR-0009",
+    "carNo": "CAR-2026-0009",
+    "status": "For Revision",
+    "source": "CCR",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Customer complaint on scratches found on the top cover of 12 units delivered in July 2026.",
+      "isoClause": "8.7 Control of nonconforming outputs",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": "No-reply",
+      "recurrenceCount": 2
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-08-03",
+      "replyDueDate": "2026-09-03",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-003",
+      "departmentId": "DEPT-002",
+      "dateSubmitted": null,
+      "signature": null
+    },
+    "problem": {
+      "description": "Twelve units from lot FG-2026-0714 showed surface scratches on the top cover. Customer rejected the units and requested replacement.",
+      "mayOccurElsewhere": "No",
+      "identifiedInRBT": "Yes"
+    },
+    "rootCause": {
+      "explanation": "Protective film is removed at the final assembly stage, exposing covers to handling damage during packing. Cause analysis pending confirmation of the handling step responsible.",
+      "analyzedBy": "USR-003",
+      "date": "2026-08-12"
+    },
+    "immediateAction": {
+      "action": "12 units replaced. Remaining stock of the lot inspected; 3 additional units segregated for rework.",
+      "responsibleId": "USR-003",
+      "targetDate": "2026-08-10",
+      "signature": "R. Dela Cruz"
+    },
+    "correctiveAction": {
+      "action": "Move protective film removal to after packing inspection. Trial to be run on Line 1.",
+      "responsibleId": "USR-003",
+      "targetDate": "2026-09-20",
+      "signature": "R. Dela Cruz"
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [
+      "ATT-011",
+      "ATT-012"
+    ],
+    "revision": {
+      "notes": "This is the third occurrence of the same complaint type in 12 months. Provide recurrence analysis referencing CAR-2025-0031 and state why the previous corrective action did not hold.",
+      "returnedBy": "USR-002",
+      "returnedAt": "2026-08-20",
+      "dueDate": "2026-09-03",
+      "stage": "review"
+    }
+  },
+  {
+    "id": "CAR-0010",
+    "carNo": "CAR-2026-0010",
+    "status": "Overdue",
+    "source": "IQA",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Risk register for the Engineering section has not been reviewed since 2025-04-01, contrary to the annual review requirement.",
+      "isoClause": "6.1 Actions to address risks and opportunities",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-07-10",
+      "replyDueDate": "2026-07-24",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-005",
+      "departmentId": "DEPT-004",
+      "dateSubmitted": null,
+      "signature": null
+    },
+    "problem": {
+      "description": "The Engineering risk-based thinking register shows a last review date of 2025-04-01. Two new processes introduced in 2026 are not represented in the register.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "No"
+    },
+    "rootCause": {
+      "explanation": "",
+      "analyzedBy": null,
+      "date": null
+    },
+    "immediateAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "correctiveAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0011",
+    "carNo": "CAR-2026-0011",
+    "status": "Overdue",
+    "source": "QSD",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Management review action item on supplier performance reporting has remained open beyond the committed date.",
+      "isoClause": "9.3.3 Management review outputs",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 1
+    },
+    "initiator": {
+      "userId": "USR-002",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-06-25",
+      "replyDueDate": "2026-07-09",
+      "signature": "J. Cruz"
+    },
+    "recipient": {
+      "userId": "USR-007",
+      "departmentId": "DEPT-006",
+      "dateSubmitted": null,
+      "signature": null
+    },
+    "problem": {
+      "description": "Action item MR-2026-04 required a quarterly supplier scorecard starting Q2 2026. No scorecard has been circulated as of the issue date.",
+      "mayOccurElsewhere": "No",
+      "identifiedInRBT": "Yes"
+    },
+    "rootCause": {
+      "explanation": "",
+      "analyzedBy": null,
+      "date": null
+    },
+    "immediateAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "correctiveAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0012",
+    "carNo": "CAR-2026-0012",
+    "status": "Active",
+    "source": "MRA",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Management review directed a reduction of document retrieval time; current average is 6 minutes against a 2-minute target.",
+      "isoClause": "7.5.3.1 Availability and suitability",
+      "ncType": "OFI",
+      "ofiType": "Actionable",
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-08-18",
+      "replyDueDate": "2026-09-08",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-002",
+      "departmentId": "DEPT-001",
+      "dateSubmitted": null,
+      "signature": null
+    },
+    "problem": {
+      "description": "Time-and-motion sampling during the July management review showed an average of 6 minutes to retrieve a controlled document, mostly spent locating the correct current revision.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "No"
+    },
+    "rootCause": {
+      "explanation": "",
+      "analyzedBy": null,
+      "date": null
+    },
+    "immediateAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "correctiveAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0013",
+    "carNo": "CAR-2026-0013",
+    "status": "Active",
+    "source": "IQC",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Incoming lot of housing plates showed a 4.2% defect rate against the 1.0% acceptance limit.",
+      "isoClause": "8.6 Release of products and services",
+      "ncType": "Major NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-004",
+      "departmentId": "DEPT-003",
+      "dateIssued": "2026-08-25",
+      "replyDueDate": "2026-09-08",
+      "signature": "A. Villanueva"
+    },
+    "recipient": {
+      "userId": "USR-007",
+      "departmentId": "DEPT-006",
+      "dateSubmitted": null,
+      "signature": null
+    },
+    "problem": {
+      "description": "Lot RM-2026-0812 (2,400 pcs) sampled at AQL 1.0 showed 21 defective pieces with burrs on the mounting edge, exceeding the acceptance number.",
+      "mayOccurElsewhere": "No",
+      "identifiedInRBT": "Yes"
+    },
+    "rootCause": {
+      "explanation": "",
+      "analyzedBy": null,
+      "date": null
+    },
+    "immediateAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "correctiveAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [
+      "ATT-013"
+    ],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0014",
+    "carNo": "CAR-2026-0014",
+    "status": "Pending",
+    "source": "OTH",
+    "sourceOther": "Near-miss reported through the employee suggestion box",
+    "finding": {
+      "deviation": "Emergency exit at the warehouse mezzanine was obstructed by pallet stacks during the 2026-08-27 shift.",
+      "isoClause": "7.1.4 Environment for the operation of processes",
+      "ncType": "OFI",
+      "ofiType": "Actionable",
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-009",
+      "departmentId": "DEPT-008",
+      "dateIssued": "2026-08-28",
+      "replyDueDate": "2026-09-11",
+      "signature": "E. Cruz"
+    },
+    "recipient": {
+      "userId": "USR-008",
+      "departmentId": "DEPT-007",
+      "dateSubmitted": null,
+      "signature": null
+    },
+    "problem": {
+      "description": "Two pallet stacks were placed within the marked keep-clear zone of the mezzanine emergency exit, reducing the egress width to approximately 60 cm.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "No"
+    },
+    "rootCause": {
+      "explanation": "",
+      "analyzedBy": null,
+      "date": null
+    },
+    "immediateAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "correctiveAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [
+      "ATT-014"
+    ],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0015",
+    "carNo": "CAR-2026-0015",
+    "status": "Pending",
+    "source": "KPI",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Internal rejection rate for August 2026 reached 2.8% against the 1.5% objective.",
+      "isoClause": "9.1.3 Analysis and evaluation",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2026-08-29",
+      "replyDueDate": "2026-09-12",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-003",
+      "departmentId": "DEPT-002",
+      "dateSubmitted": null,
+      "signature": null
+    },
+    "problem": {
+      "description": "Monthly quality report shows 2.8% internal rejection, driven mainly by solder defects on the PCB sub-assembly line.",
+      "mayOccurElsewhere": "Yes",
+      "identifiedInRBT": "Yes"
+    },
+    "rootCause": {
+      "explanation": "",
+      "analyzedBy": null,
+      "date": null
+    },
+    "immediateAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "correctiveAction": {
+      "action": "",
+      "responsibleId": null,
+      "targetDate": null,
+      "signature": null
+    },
+    "verification": {
+      "closure": {
+        "notes": "",
+        "verifiedBy": null,
+        "approvedBy": null,
+        "verificationDate": null,
+        "disposition": "OPEN"
+      },
+      "effectiveness": {
+        "notes": "",
+        "validatedBy": null,
+        "approvedBy": null,
+        "result": null,
+        "date": null
+      }
+    },
+    "dateClosed": null,
+    "attachments": [],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  },
+  {
+    "id": "CAR-0016",
+    "carNo": "CAR-2025-0031",
+    "status": "Closed",
+    "source": "CCR",
+    "sourceOther": null,
+    "finding": {
+      "deviation": "Customer complaint on cosmetic defects of delivered units (surface scratches).",
+      "isoClause": "8.7 Control of nonconforming outputs",
+      "ncType": "Minor NC",
+      "ofiType": null,
+      "reasonForReissue": null,
+      "recurrenceCount": 0
+    },
+    "initiator": {
+      "userId": "USR-001",
+      "departmentId": "DEPT-001",
+      "dateIssued": "2025-09-15",
+      "replyDueDate": "2025-09-29",
+      "signature": "M. Santos"
+    },
+    "recipient": {
+      "userId": "USR-003",
+      "departmentId": "DEPT-002",
+      "dateSubmitted": "2025-09-26",
+      "signature": "R. Dela Cruz"
+    },
+    "problem": {
+      "description": "Eight units returned with scratches on the top cover. Traced to handling at the packing station.",
+      "mayOccurElsewhere": "No",
+      "identifiedInRBT": "No"
+    },
+    "rootCause": {
+      "explanation": "Packing table surface was bare metal with no protective mat.",
+      "analyzedBy": "USR-003",
+      "date": "2025-09-22"
+    },
+    "immediateAction": {
+      "action": "Units replaced. Rubber mats installed on all packing tables.",
+      "responsibleId": "USR-003",
+      "targetDate": "2025-09-24",
+      "signature": "R. Dela Cruz"
+    },
+    "correctiveAction": {
+      "action": "Packing station 5S standard updated to require protective matting, checked during daily line audit.",
+      "responsibleId": "USR-003",
+      "targetDate": "2025-10-30",
+      "signature": "R. Dela Cruz"
+    },
+    "verification": {
+      "closure": {
+        "notes": "Mats installed and 5S standard updated. Verified on line walk 2025-11-04.",
+        "verifiedBy": "USR-002",
+        "approvedBy": "USR-001",
+        "verificationDate": "2025-11-04",
+        "disposition": "CLOSED"
+      },
+      "effectiveness": {
+        "notes": "Scratch complaints dropped but recurred in July 2026 (see CAR-2026-0009). Extended monitoring was recommended at closure.",
+        "validatedBy": "USR-002",
+        "approvedBy": "USR-001",
+        "result": "Requires Extended Monitoring",
+        "date": "2026-01-12"
+      }
+    },
+    "dateClosed": "2026-01-12",
+    "attachments": [],
+    "revision": {
+      "notes": "",
+      "returnedBy": null,
+      "returnedAt": null,
+      "dueDate": null,
+      "stage": null
+    }
+  }
+]

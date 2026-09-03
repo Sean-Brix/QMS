@@ -1,0 +1,29 @@
+[
+  {
+    "id": "ROLE-QMS",
+    "key": "qms",
+    "name": "QMS Department",
+    "description": "Full control over documents, CAR lifecycle, reports, logs and system settings.",
+    "permissions": [
+      "auth.login", "auth.logout",
+      "document.view", "document.download", "document.upload", "document.revise",
+      "document.archive", "document.delete", "document.review",
+      "car.view.all", "car.issue", "car.respond", "car.review", "car.verify", "car.revise", "car.close",
+      "car.upload.evidence",
+      "dashboard.view", "activitylog.view", "report.view", "report.print",
+      "user.manage", "settings.manage", "search.use"
+    ]
+  },
+  {
+    "id": "ROLE-USER",
+    "key": "user",
+    "name": "Department",
+    "description": "Departmental access: read documents, issue CARs and respond to those assigned to the department.",
+    "permissions": [
+      "auth.login", "auth.logout",
+      "document.view", "document.download",
+      "car.view.own", "car.issue", "car.respond", "car.upload.evidence", "car.monitor",
+      "dashboard.view", "search.use"
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+[
+  { "key": "Active",           "order": 1, "tone": "primary", "description": "CAR has been issued and is currently being processed." },
+  { "key": "Pending",          "order": 2, "tone": "neutral", "description": "Awaiting action or response from the concerned user." },
+  { "key": "Under Review",     "order": 3, "tone": "info",    "description": "Corrective action is being reviewed by the QMS Department." },
+  { "key": "For Revision",     "order": 4, "tone": "warning", "description": "Response requires revision or additional information." },
+  { "key": "Overdue",          "order": 5, "tone": "danger",  "description": "Due date has passed without completion." },
+  { "key": "For Verification", "order": 6, "tone": "accent",  "description": "Corrective action submitted and awaiting verification." },
+  { "key": "Closed",           "order": 7, "tone": "success", "description": "Corrective action has been verified and officially closed." }
+]
