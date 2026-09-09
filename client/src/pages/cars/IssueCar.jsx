@@ -22,6 +22,7 @@ import {
   FormSpan,
   Input,
   NativeSelect,
+  resolveFileIconType,
   Section,
   TextArea,
   getReadableFileSize,
@@ -457,7 +458,7 @@ export default function IssueCar() {
                       name={file.name}
                       size={file.size}
                       progress={100}
-                      type={file.type.toLowerCase()}
+                      type={resolveFileIconType({ fileName: file.name, fileType: file.type })}
                       onDelete={() => removeFile(file.key)}
                     />
                   ))}

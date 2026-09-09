@@ -56,10 +56,13 @@ const ROUTES = [
   '/login',
   '/dashboard',
   '/documents',
-  '/documents/DOC-001',
+  '/documents/DOC-0001', // PDF file card
+  '/documents/DOC-0005', // DOCX file card
+  '/documents/DOC-0006', // XLSX file card
   '/cars',
   '/cars/new',
   '/cars/CAR-0001',   // a real seeded id — 'CAR-001' silently rendered the not-found state
+  '/cars/CAR-0004',   // supporting files with PDF and XLSX icons
   '/cars/CAR-0008',   // returned for revision: exercises the revision callout
   '/notifications',
   '/activity-logs',
