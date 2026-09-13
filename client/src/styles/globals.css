@@ -125,3 +125,332 @@ input[type="search"]::-webkit-search-cancel-button {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ============================================================================
+   Scrollbars — slim, quiet, and part of the palette.
+   ----------------------------------------------------------------------------
+   The browser default is a wide grey gutter that ignores the theme; in dark
+   mode it drew a light track beside the sidebar. Every scroll area now gets a
+   thin rounded thumb on a transparent track that thickens a little under the
+   pointer. `.scroll-quiet` goes one step further for chrome such as the
+   sidebar: its thumb only appears while the pointer or focus is inside.
+   ========================================================================== */
+
+:root {
+    color-scheme: light;
+    --scrollbar-thumb: rgb(20 28 24 / 0.18);
+    --scrollbar-thumb-hover: rgb(20 28 24 / 0.34);
+}
+
+/* Chromium and Safari */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+::-webkit-scrollbar-thumb {
+    border: 4px solid transparent;
+    border-radius: 9999px;
+    background-color: var(--scrollbar-thumb);
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    border-width: 3px;
+    background-color: var(--scrollbar-thumb-hover);
+}
+
+.scroll-quiet::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+.scroll-quiet:hover::-webkit-scrollbar-thumb,
+.scroll-quiet:focus-within::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+}
+
+.scroll-quiet::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox has no ::-webkit-scrollbar, so it gets the standard thin bar in the
+   same colours. Chromium is kept out of this block on purpose: setting these
+   properties there switches off the rounded thumb above. */
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+
+    .scroll-quiet {
+        scrollbar-color: transparent transparent;
+    }
+
+    .scroll-quiet:hover,
+    .scroll-quiet:focus-within {
+        scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+}
+
+/* ============================================================================
+   Dark mode, tuned for long sessions.
+   ----------------------------------------------------------------------------
+   The stock Untitled UI dark palette sets near-black cards (#0a0a0a) on a
+   lighter page, #fafafa text on top, and fully saturated fills behind icons
+   and badges: high glare, and depth that reads upside down. The same tokens
+   are re-pointed here, so no component changes:
+     • no pure black — graphite surfaces with a faint green-grey cast taken from
+       the brand, and cards lighter than the page, the way light mode stacks;
+     • off-white text in soft steps, never pure white;
+     • status colour as low-alpha tints with muted pastel text, so a register
+       full of badges reads calm rather than neon;
+     • `color-scheme: dark`, so date pickers, selects and scrollbars follow.
+   Unlayered, so it wins over the `.dark-mode` block in theme.css.
+   ========================================================================== */
+
+.dark-mode {
+    color-scheme: dark;
+
+    --scrollbar-thumb: rgb(214 222 218 / 0.16);
+    --scrollbar-thumb-hover: rgb(214 222 218 / 0.3);
+
+    /* --- Surfaces, darkest to lightest --------------------------------- */
+    --color-bg-secondary: rgb(17 20 22);
+    --color-bg-secondary_alt: rgb(17 20 22);
+    --color-bg-primary: rgb(24 28 30);
+    --color-bg-primary_alt: rgb(24 28 30);
+    --color-bg-primary_hover: rgb(31 36 39);
+    --color-bg-active: rgb(33 38 41);
+    --color-bg-secondary_hover: rgb(36 41 44);
+    --color-bg-tertiary: rgb(38 43 47);
+    --color-bg-quaternary: rgb(48 54 58);
+    --color-bg-overlay: rgb(8 10 11);
+    --color-bg-primary-solid: rgb(38 43 47);
+    --color-bg-secondary-solid: rgb(92 100 106);
+    --color-bg-brand-section: rgb(24 28 30);
+    --color-bg-brand-section_subtle: rgb(17 20 22);
+
+    /* --- Solid fills: a step quieter than light mode ------------------- */
+    --color-bg-brand-solid: rgb(27 118 80);
+    --color-bg-brand-solid_hover: rgb(34 134 92);
+    --color-bg-error-solid: rgb(190 66 58);
+    --color-bg-error-solid_hover: rgb(208 80 72);
+    --color-bg-warning-solid: rgb(180 128 36);
+    --color-bg-success-solid: rgb(30 126 84);
+
+    /* --- Tinted fills: alpha, so they sit on any surface --------------- */
+    --color-bg-brand-primary: rgb(96 188 138 / 0.1);
+    --color-bg-brand-primary_alt: rgb(96 188 138 / 0.08);
+    --color-bg-brand-secondary: rgb(96 188 138 / 0.16);
+    --color-bg-error-primary: rgb(228 122 112 / 0.1);
+    --color-bg-error-secondary: rgb(228 122 112 / 0.16);
+    --color-bg-warning-primary: rgb(222 172 82 / 0.1);
+    --color-bg-warning-secondary: rgb(222 172 82 / 0.16);
+    --color-bg-success-primary: rgb(96 188 138 / 0.1);
+    --color-bg-success-secondary: rgb(96 188 138 / 0.16);
+
+    /* --- Text: off-white in soft steps --------------------------------- */
+    --color-text-primary: rgb(226 230 232);
+    --color-text-secondary: rgb(194 200 204);
+    --color-text-secondary_hover: rgb(212 217 220);
+    --color-text-tertiary: rgb(150 158 164);
+    --color-text-tertiary_hover: rgb(194 200 204);
+    --color-text-quaternary: rgb(126 134 140);
+    --color-text-placeholder: rgb(112 120 126);
+    --color-text-brand-primary: rgb(226 230 232);
+    --color-text-brand-secondary: rgb(128 204 162);
+    --color-text-brand-secondary_hover: rgb(160 220 188);
+    --color-text-brand-tertiary: rgb(128 204 162);
+    --color-text-brand-tertiary_alt: rgb(226 230 232);
+    --color-text-error-primary: rgb(238 152 142);
+    --color-text-error-primary_hover: rgb(244 176 168);
+    --color-text-warning-primary: rgb(230 190 112);
+    --color-text-success-primary: rgb(128 204 162);
+    --color-text-primary_on-brand: rgb(238 245 241);
+    --color-text-editor-icon-fg_active: rgb(226 230 232);
+
+    /* --- Icons --------------------------------------------------------- */
+    --color-fg-primary: rgb(226 230 232);
+    --color-fg-secondary: rgb(194 200 204);
+    --color-fg-secondary_hover: rgb(212 217 220);
+    --color-fg-tertiary: rgb(150 158 164);
+    --color-fg-tertiary_hover: rgb(194 200 204);
+    --color-fg-quaternary: rgb(104 112 118);
+    --color-fg-quaternary_hover: rgb(140 148 154);
+    --color-fg-brand-primary: rgb(96 188 138);
+    --color-fg-brand-secondary: rgb(96 188 138);
+    --color-fg-error-primary: rgb(224 116 106);
+    --color-fg-error-secondary: rgb(236 140 130);
+    --color-fg-warning-primary: rgb(218 166 70);
+    --color-fg-warning-secondary: rgb(230 190 112);
+    --color-fg-success-primary: rgb(96 188 138);
+    --color-fg-success-secondary: rgb(128 204 162);
+
+    --color-featured-icon-light-fg-brand: rgb(128 204 162);
+    --color-featured-icon-light-fg-error: rgb(238 152 142);
+    --color-featured-icon-light-fg-warning: rgb(230 190 112);
+    --color-featured-icon-light-fg-success: rgb(128 204 162);
+    --color-featured-icon-light-fg-gray: rgb(150 158 164);
+
+    /* --- Lines: light alpha rather than solid greys -------------------- */
+    --color-border-primary: rgb(255 255 255 / 0.13);
+    --color-border-secondary: rgb(255 255 255 / 0.075);
+    --color-border-secondary_alt: rgb(255 255 255 / 0.075);
+    --color-border-tertiary: rgb(255 255 255 / 0.05);
+    --color-border-brand: rgb(96 188 138);
+    --color-border-brand_alt: rgb(96 188 138 / 0.5);
+    --color-border-error: rgb(224 116 106);
+    --color-border-error_subtle: rgb(224 116 106 / 0.5);
+    --color-focus-ring: rgb(96 188 138);
+    --color-focus-ring-error: rgb(224 116 106);
+
+    /* --- Badges and callouts ------------------------------------------- */
+    /* 50–300 are the tinted fill and ring, 400–500 the dots, 600–700 the text. */
+    --color-utility-neutral-50: rgb(255 255 255 / 0.05);
+    --color-utility-neutral-100: rgb(255 255 255 / 0.08);
+    --color-utility-neutral-200: rgb(255 255 255 / 0.12);
+    --color-utility-neutral-300: rgb(255 255 255 / 0.18);
+    --color-utility-neutral-400: rgb(104 112 118);
+    --color-utility-neutral-500: rgb(126 134 140);
+    --color-utility-neutral-600: rgb(150 158 164);
+    --color-utility-neutral-700: rgb(194 200 204);
+    --color-utility-neutral-800: rgb(212 217 220);
+    --color-utility-neutral-900: rgb(226 230 232);
+
+    --color-utility-brand-50: color-mix(in oklab, var(--color-brand-400) 12%, transparent);
+    --color-utility-brand-100: color-mix(in oklab, var(--color-brand-400) 18%, transparent);
+    --color-utility-brand-200: color-mix(in oklab, var(--color-brand-400) 26%, transparent);
+    --color-utility-brand-300: color-mix(in oklab, var(--color-brand-400) 38%, transparent);
+    --color-utility-brand-400: color-mix(in oklab, var(--color-brand-400) 65%, rgb(24 28 30));
+    --color-utility-brand-500: color-mix(in oklab, var(--color-brand-400) 78%, rgb(150 158 164));
+    --color-utility-brand-600: color-mix(in oklab, var(--color-brand-300) 72%, rgb(194 200 204));
+    --color-utility-brand-700: color-mix(in oklab, var(--color-brand-300) 66%, rgb(212 217 220));
+    --color-utility-brand-800: color-mix(in oklab, var(--color-brand-200) 66%, rgb(212 217 220));
+    --color-utility-brand-900: color-mix(in oklab, var(--color-brand-100) 66%, rgb(226 230 232));
+
+    --color-utility-blue-50: color-mix(in oklab, var(--color-blue-400) 12%, transparent);
+    --color-utility-blue-100: color-mix(in oklab, var(--color-blue-400) 18%, transparent);
+    --color-utility-blue-200: color-mix(in oklab, var(--color-blue-400) 26%, transparent);
+    --color-utility-blue-300: color-mix(in oklab, var(--color-blue-400) 38%, transparent);
+    --color-utility-blue-400: color-mix(in oklab, var(--color-blue-400) 65%, rgb(24 28 30));
+    --color-utility-blue-500: color-mix(in oklab, var(--color-blue-400) 78%, rgb(150 158 164));
+    --color-utility-blue-600: color-mix(in oklab, var(--color-blue-300) 72%, rgb(194 200 204));
+    --color-utility-blue-700: color-mix(in oklab, var(--color-blue-300) 66%, rgb(212 217 220));
+
+    --color-utility-red-50: color-mix(in oklab, var(--color-red-400) 12%, transparent);
+    --color-utility-red-100: color-mix(in oklab, var(--color-red-400) 18%, transparent);
+    --color-utility-red-200: color-mix(in oklab, var(--color-red-400) 26%, transparent);
+    --color-utility-red-300: color-mix(in oklab, var(--color-red-400) 38%, transparent);
+    --color-utility-red-400: color-mix(in oklab, var(--color-red-400) 65%, rgb(24 28 30));
+    --color-utility-red-500: color-mix(in oklab, var(--color-red-400) 78%, rgb(150 158 164));
+    --color-utility-red-600: color-mix(in oklab, var(--color-red-300) 72%, rgb(194 200 204));
+    --color-utility-red-700: color-mix(in oklab, var(--color-red-300) 66%, rgb(212 217 220));
+
+    --color-utility-yellow-50: color-mix(in oklab, var(--color-yellow-400) 11%, transparent);
+    --color-utility-yellow-100: color-mix(in oklab, var(--color-yellow-400) 16%, transparent);
+    --color-utility-yellow-200: color-mix(in oklab, var(--color-yellow-400) 24%, transparent);
+    --color-utility-yellow-300: color-mix(in oklab, var(--color-yellow-400) 34%, transparent);
+    --color-utility-yellow-400: color-mix(in oklab, var(--color-yellow-400) 60%, rgb(24 28 30));
+    --color-utility-yellow-500: color-mix(in oklab, var(--color-yellow-400) 72%, rgb(150 158 164));
+    --color-utility-yellow-600: color-mix(in oklab, var(--color-yellow-300) 62%, rgb(194 200 204));
+    --color-utility-yellow-700: color-mix(in oklab, var(--color-yellow-300) 56%, rgb(212 217 220));
+
+    --color-utility-amber-50: color-mix(in oklab, var(--color-amber-400) 11%, transparent);
+    --color-utility-amber-100: color-mix(in oklab, var(--color-amber-400) 16%, transparent);
+    --color-utility-amber-200: color-mix(in oklab, var(--color-amber-400) 24%, transparent);
+    --color-utility-amber-300: color-mix(in oklab, var(--color-amber-400) 34%, transparent);
+    --color-utility-amber-400: color-mix(in oklab, var(--color-amber-400) 60%, rgb(24 28 30));
+    --color-utility-amber-500: color-mix(in oklab, var(--color-amber-400) 72%, rgb(150 158 164));
+    --color-utility-amber-600: color-mix(in oklab, var(--color-amber-300) 62%, rgb(194 200 204));
+    --color-utility-amber-700: color-mix(in oklab, var(--color-amber-300) 56%, rgb(212 217 220));
+
+    --color-utility-green-50: color-mix(in oklab, var(--color-green-400) 12%, transparent);
+    --color-utility-green-100: color-mix(in oklab, var(--color-green-400) 18%, transparent);
+    --color-utility-green-200: color-mix(in oklab, var(--color-green-400) 26%, transparent);
+    --color-utility-green-300: color-mix(in oklab, var(--color-green-400) 38%, transparent);
+    --color-utility-green-400: color-mix(in oklab, var(--color-green-400) 65%, rgb(24 28 30));
+    --color-utility-green-500: color-mix(in oklab, var(--color-green-400) 78%, rgb(150 158 164));
+    --color-utility-green-600: color-mix(in oklab, var(--color-green-300) 72%, rgb(194 200 204));
+    --color-utility-green-700: color-mix(in oklab, var(--color-green-300) 66%, rgb(212 217 220));
+
+    --color-utility-emerald-50: color-mix(in oklab, var(--color-emerald-400) 12%, transparent);
+    --color-utility-emerald-100: color-mix(in oklab, var(--color-emerald-400) 18%, transparent);
+    --color-utility-emerald-200: color-mix(in oklab, var(--color-emerald-400) 26%, transparent);
+    --color-utility-emerald-300: color-mix(in oklab, var(--color-emerald-400) 38%, transparent);
+    --color-utility-emerald-400: color-mix(in oklab, var(--color-emerald-400) 65%, rgb(24 28 30));
+    --color-utility-emerald-500: color-mix(in oklab, var(--color-emerald-400) 78%, rgb(150 158 164));
+    --color-utility-emerald-600: color-mix(in oklab, var(--color-emerald-300) 72%, rgb(194 200 204));
+    --color-utility-emerald-700: color-mix(in oklab, var(--color-emerald-300) 66%, rgb(212 217 220));
+
+    --color-utility-orange-50: color-mix(in oklab, var(--color-orange-400) 12%, transparent);
+    --color-utility-orange-100: color-mix(in oklab, var(--color-orange-400) 18%, transparent);
+    --color-utility-orange-200: color-mix(in oklab, var(--color-orange-400) 26%, transparent);
+    --color-utility-orange-300: color-mix(in oklab, var(--color-orange-400) 38%, transparent);
+    --color-utility-orange-400: color-mix(in oklab, var(--color-orange-400) 65%, rgb(24 28 30));
+    --color-utility-orange-500: color-mix(in oklab, var(--color-orange-400) 78%, rgb(150 158 164));
+    --color-utility-orange-600: color-mix(in oklab, var(--color-orange-300) 72%, rgb(194 200 204));
+    --color-utility-orange-700: color-mix(in oklab, var(--color-orange-300) 66%, rgb(212 217 220));
+
+    --color-utility-sky-50: color-mix(in oklab, var(--color-sky-400) 12%, transparent);
+    --color-utility-sky-100: color-mix(in oklab, var(--color-sky-400) 18%, transparent);
+    --color-utility-sky-200: color-mix(in oklab, var(--color-sky-400) 26%, transparent);
+    --color-utility-sky-300: color-mix(in oklab, var(--color-sky-400) 38%, transparent);
+    --color-utility-sky-400: color-mix(in oklab, var(--color-sky-400) 65%, rgb(24 28 30));
+    --color-utility-sky-500: color-mix(in oklab, var(--color-sky-400) 78%, rgb(150 158 164));
+    --color-utility-sky-600: color-mix(in oklab, var(--color-sky-300) 72%, rgb(194 200 204));
+    --color-utility-sky-700: color-mix(in oklab, var(--color-sky-300) 66%, rgb(212 217 220));
+
+    --color-utility-indigo-50: color-mix(in oklab, var(--color-indigo-400) 12%, transparent);
+    --color-utility-indigo-100: color-mix(in oklab, var(--color-indigo-400) 18%, transparent);
+    --color-utility-indigo-200: color-mix(in oklab, var(--color-indigo-400) 26%, transparent);
+    --color-utility-indigo-300: color-mix(in oklab, var(--color-indigo-400) 38%, transparent);
+    --color-utility-indigo-400: color-mix(in oklab, var(--color-indigo-400) 65%, rgb(24 28 30));
+    --color-utility-indigo-500: color-mix(in oklab, var(--color-indigo-400) 78%, rgb(150 158 164));
+    --color-utility-indigo-600: color-mix(in oklab, var(--color-indigo-300) 72%, rgb(194 200 204));
+    --color-utility-indigo-700: color-mix(in oklab, var(--color-indigo-300) 66%, rgb(212 217 220));
+
+    --color-utility-purple-50: color-mix(in oklab, var(--color-purple-400) 12%, transparent);
+    --color-utility-purple-100: color-mix(in oklab, var(--color-purple-400) 18%, transparent);
+    --color-utility-purple-200: color-mix(in oklab, var(--color-purple-400) 26%, transparent);
+    --color-utility-purple-300: color-mix(in oklab, var(--color-purple-400) 38%, transparent);
+    --color-utility-purple-400: color-mix(in oklab, var(--color-purple-400) 65%, rgb(24 28 30));
+    --color-utility-purple-500: color-mix(in oklab, var(--color-purple-400) 78%, rgb(150 158 164));
+    --color-utility-purple-600: color-mix(in oklab, var(--color-purple-300) 72%, rgb(194 200 204));
+    --color-utility-purple-700: color-mix(in oklab, var(--color-purple-300) 66%, rgb(212 217 220));
+
+    --color-utility-fuchsia-50: color-mix(in oklab, var(--color-fuchsia-400) 12%, transparent);
+    --color-utility-fuchsia-100: color-mix(in oklab, var(--color-fuchsia-400) 18%, transparent);
+    --color-utility-fuchsia-200: color-mix(in oklab, var(--color-fuchsia-400) 26%, transparent);
+    --color-utility-fuchsia-300: color-mix(in oklab, var(--color-fuchsia-400) 38%, transparent);
+    --color-utility-fuchsia-400: color-mix(in oklab, var(--color-fuchsia-400) 65%, rgb(24 28 30));
+    --color-utility-fuchsia-500: color-mix(in oklab, var(--color-fuchsia-400) 78%, rgb(150 158 164));
+    --color-utility-fuchsia-600: color-mix(in oklab, var(--color-fuchsia-300) 72%, rgb(194 200 204));
+    --color-utility-fuchsia-700: color-mix(in oklab, var(--color-fuchsia-300) 66%, rgb(212 217 220));
+
+    --color-utility-pink-50: color-mix(in oklab, var(--color-pink-400) 12%, transparent);
+    --color-utility-pink-100: color-mix(in oklab, var(--color-pink-400) 18%, transparent);
+    --color-utility-pink-200: color-mix(in oklab, var(--color-pink-400) 26%, transparent);
+    --color-utility-pink-300: color-mix(in oklab, var(--color-pink-400) 38%, transparent);
+    --color-utility-pink-400: color-mix(in oklab, var(--color-pink-400) 65%, rgb(24 28 30));
+    --color-utility-pink-500: color-mix(in oklab, var(--color-pink-400) 78%, rgb(150 158 164));
+    --color-utility-pink-600: color-mix(in oklab, var(--color-pink-300) 72%, rgb(194 200 204));
+    --color-utility-pink-700: color-mix(in oklab, var(--color-pink-300) 66%, rgb(212 217 220));
+
+    --color-utility-slate-50: color-mix(in oklab, var(--color-slate-400) 12%, transparent);
+    --color-utility-slate-100: color-mix(in oklab, var(--color-slate-400) 18%, transparent);
+    --color-utility-slate-200: color-mix(in oklab, var(--color-slate-400) 26%, transparent);
+    --color-utility-slate-300: color-mix(in oklab, var(--color-slate-400) 38%, transparent);
+    --color-utility-slate-400: color-mix(in oklab, var(--color-slate-400) 65%, rgb(24 28 30));
+    --color-utility-slate-500: color-mix(in oklab, var(--color-slate-400) 78%, rgb(150 158 164));
+    --color-utility-slate-600: color-mix(in oklab, var(--color-slate-300) 72%, rgb(194 200 204));
+    --color-utility-slate-700: color-mix(in oklab, var(--color-slate-300) 66%, rgb(212 217 220));
+}

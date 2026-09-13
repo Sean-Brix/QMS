@@ -122,7 +122,7 @@ export default function Sidebar({ badges, onNavigate }) {
   }
 
   return (
-    <aside className="flex h-full w-full max-w-full flex-col overflow-y-auto bg-primary pt-4 shadow-xs ring-secondary ring-inset lg:w-69 lg:rounded-xl lg:ring-1">
+    <aside className="scroll-quiet flex h-full w-full max-w-full flex-col overflow-y-auto bg-primary pt-4 shadow-xs ring-secondary ring-inset lg:w-69 lg:rounded-xl lg:ring-1">
       <div className="px-4 lg:px-5">
         <BrandMark />
       </div>
