@@ -1,5 +1,9 @@
 /* ============================================================================
    CAR Register (PRD 14 — CAR Search and Filtering, 13 — CAR Monitoring)
+   ----------------------------------------------------------------------------
+   Shows where each CAR is and whether it is late there: the next deadline of
+   its current stage, its close-out and effectiveness dates, and the flags that
+   sit alongside the status — overdue, re-issued, extended monitoring.
    ========================================================================== */
 
 import { useMemo, useState } from 'react'
@@ -22,6 +26,8 @@ import {
 import {
   ALL,
   CAR_FILTER_OPEN,
+  CAR_FLAG,
+  CAR_FLAG_LIST,
   CAR_OPEN_STATUSES,
   CAR_STATUS,
   CAR_STATUS_LIST,
@@ -42,13 +48,24 @@ const COLUMNS = [
   { id: 'department', label: 'Concerned dept.', allowsSorting: true },
   { id: 'responsible', label: 'Responsible' },
   { id: 'dateIssued', label: 'Issued', allowsSorting: true },
-  { id: 'dueDate', label: 'Due', allowsSorting: true },
+  { id: 'deadline', label: 'Next deadline', allowsSorting: true },
+  { id: 'closeOut', label: 'Close-out', allowsSorting: true },
   { id: 'status', label: 'Status', allowsSorting: true },
 ]
 
+/** How each register flag is read off a CAR. */
+const HAS_FLAG = {
+  [CAR_FLAG.OVERDUE]: (car) => car.overdue,
+  [CAR_FLAG.REISSUED]: (car) => Boolean(car.reissuedAs),
+  [CAR_FLAG.REISSUE]: (car) => Boolean(car.reissuedFrom),
+  [CAR_FLAG.MONITORING]: (car) => Boolean(car.extendedMonitoring),
+}
+
+const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`
+
 export default function CarRegister() {
-  const { user, can, isQms } = useAuth()
-  const { carsForUser, departments, users, carSources, userName, deptName } = useData()
+  const { user, can, isDepartment } = useAuth()
+  const { carsForUser, departments, users, personnel, carSources, userName, deptName } = useData()
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
 
@@ -56,6 +73,7 @@ export default function CarRegister() {
 
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState(params.get('status') || ALL)
+  const [flag, setFlag] = useState(CAR_FLAG_LIST.includes(params.get('flag')) ? params.get('flag') : ALL)
   const [department, setDepartment] = useState(ALL)
   const [responsible, setResponsible] = useState(ALL)
   const [issuedBy, setIssuedBy] = useState(ALL)
@@ -69,6 +87,7 @@ export default function CarRegister() {
 
   const stats = useMemo(() => countBy(cars, 'status'), [cars])
   const openCount = cars.filter((car) => CAR_OPEN_STATUSES.includes(car.status)).length
+  const overdueCount = cars.filter((car) => car.overdue).length
 
   const filtered = useMemo(() => {
     const rows = cars.filter(
@@ -77,14 +96,13 @@ export default function CarRegister() {
           'carNo',
           (record) => record.finding.deviation,
           (record) => record.problem.description,
-          (record) => userName(record.recipient.userId),
-          (record) => userName(record.initiator.userId),
+          (record) => userName(record.recipient.personnelId || record.recipient.userId),
+          (record) => userName(record.initiator.personnelId || record.initiator.userId),
         ]) &&
-        (status === CAR_FILTER_OPEN
-          ? CAR_OPEN_STATUSES.includes(car.status)
-          : matchesValue(car.status, status)) &&
+        (status === CAR_FILTER_OPEN ? CAR_OPEN_STATUSES.includes(car.status) : matchesValue(car.status, status)) &&
+        (flag === ALL || HAS_FLAG[flag](car)) &&
         matchesValue(car.recipient.departmentId, department) &&
-        matchesValue(car.recipient.userId, responsible) &&
+        matchesValue(car.recipient.personnelId, responsible) &&
         matchesValue(car.initiator.userId, issuedBy) &&
         matchesValue(car.source, source) &&
         matchesValue(car.finding.ncType, ncType) &&
@@ -94,19 +112,21 @@ export default function CarRegister() {
     const accessor = {
       carNo: (car) => car.carNo,
       dateIssued: (car) => car.initiator.dateIssued,
-      dueDate: (car) => car.initiator.replyDueDate,
-      status: (car) => car.status,
+      deadline: (car) => car.deadline?.date,
+      closeOut: (car) => car.closeOutDate,
+      status: (car) => CAR_STATUS_LIST.indexOf(car.status),
       department: (car) => deptName(car.recipient.departmentId),
     }[sort.key]
 
     return sortBy(rows, accessor, sort.dir)
-  }, [cars, query, status, department, responsible, issuedBy, source, ncType, dateFrom, dateTo, sort, userName, deptName])
+  }, [cars, query, status, flag, department, responsible, issuedBy, source, ncType, dateFrom, dateTo, sort, userName, deptName])
 
   const view = paginate(filtered, page, pageSize)
 
   const hasFilters =
     query ||
     status !== ALL ||
+    flag !== ALL ||
     department !== ALL ||
     responsible !== ALL ||
     issuedBy !== ALL ||
@@ -118,6 +138,7 @@ export default function CarRegister() {
   const resetFilters = () => {
     setQuery('')
     setStatus(ALL)
+    setFlag(ALL)
     setDepartment(ALL)
     setResponsible(ALL)
     setIssuedBy(ALL)
@@ -156,26 +177,49 @@ export default function CarRegister() {
       case 'department':
         return <span className="block min-w-0">{deptName(car.recipient.departmentId)}</span>
       case 'responsible':
-        return <span className="whitespace-nowrap">{userName(car.recipient.userId)}</span>
+        return <span className="whitespace-nowrap">{userName(car.recipient.personnelId || car.recipient.userId)}</span>
       case 'dateIssued':
         return <span className="whitespace-nowrap">{formatDate(car.initiator.dateIssued)}</span>
-      case 'dueDate': {
-        const days = daysBetween(TODAY, car.initiator.replyDueDate)
-        const late = car.status === CAR_STATUS.OVERDUE
-        const pending = !car.recipient.dateSubmitted && car.status !== CAR_STATUS.CLOSED
+      case 'deadline': {
+        if (!car.deadline?.date) {
+          return (
+            <span className="text-sm whitespace-nowrap text-quaternary">
+              {car.status === CAR_STATUS.UNDER_REVIEW ? 'With QMS' : '—'}
+            </span>
+          )
+        }
+        const days = daysBetween(TODAY, car.deadline.date)
         return (
           <div className="whitespace-nowrap">
-            <p>{formatDate(car.initiator.replyDueDate)}</p>
-            {pending && (
-              <p className={late ? 'text-sm font-medium text-error-primary' : 'text-sm text-tertiary'}>
-                {late ? `${Math.abs(days)} days late` : `${days} days left`}
-              </p>
-            )}
+            <p>{formatDate(car.deadline.date)}</p>
+            <p className={car.overdue ? 'text-sm font-medium text-error-primary' : 'text-sm text-tertiary'}>
+              {car.deadline.label.replace(' due', '')} ·{' '}
+              {car.overdue ? `${plural(Math.abs(days), 'day')} late` : days === 0 ? 'today' : `${plural(days, 'day')} left`}
+            </p>
           </div>
         )
       }
+      case 'closeOut':
+        if (!car.closeOutDate) return <span className="text-quaternary">—</span>
+        return (
+          <div className="whitespace-nowrap">
+            <p>{formatDate(car.closeOutDate)}</p>
+            <p className="text-sm text-tertiary">
+              {car.status === CAR_STATUS.CLOSED
+                ? `Closed ${formatDate(car.dateClosed)}`
+                : `Effectiveness due ${formatDate(car.effectivenessDueDate)}`}
+            </p>
+          </div>
+        )
       case 'status':
-        return <StatusBadge status={car.status} />
+        return (
+          <div className="flex flex-col items-start gap-1">
+            <StatusBadge status={car.status} />
+            {CAR_FLAG_LIST.filter((name) => HAS_FLAG[name](car)).map((name) => (
+              <StatusTag key={name} status={name} label={name === CAR_FLAG.REISSUE ? 'Re-issue' : name} />
+            ))}
+          </div>
+        )
       default:
         return null
     }
@@ -186,9 +230,9 @@ export default function CarRegister() {
       <PageHeader
         title="CAR Register"
         subtitle={
-          isQms
-            ? 'All Corrective Action Reports issued across the organization, from issuance through verification and closure.'
-            : 'Corrective Action Reports you issued or that are assigned to you or your department.'
+          isDepartment
+            ? 'Corrective Action Reports your department issued or that are routed to it.'
+            : 'All Corrective Action Reports issued across the organization, from issuance through verification, effectiveness and closure.'
         }
         actions={
           can(PERMISSION.CAR_ISSUE) && (
@@ -207,28 +251,28 @@ export default function CarRegister() {
           hint="Every CAR you can see"
           icon={ClipboardCheck}
           color="brand"
-          onClick={() => onFilter(setStatus)(ALL)}
+          onClick={resetFilters}
         />
         <MetricCard
           label="Open"
           value={openCount}
-          hint="Awaiting a response"
+          hint="Not yet closed"
           icon={Clock}
           color="warning"
           onClick={() => onFilter(setStatus)(CAR_FILTER_OPEN)}
         />
         <MetricCard
           label="Overdue"
-          value={stats[CAR_STATUS.OVERDUE] || 0}
-          hint="Reply due date passed"
+          value={overdueCount}
+          hint="Late for their current stage"
           icon={AlertTriangle}
           color="error"
-          onClick={() => onFilter(setStatus)(CAR_STATUS.OVERDUE)}
+          onClick={() => onFilter(setFlag)(CAR_FLAG.OVERDUE)}
         />
         <MetricCard
           label="Closed"
           value={stats[CAR_STATUS.CLOSED] || 0}
-          hint="Verified and disposed"
+          hint="Effective, monitored or re-issued"
           icon={CheckDone01}
           color="success"
           onClick={() => onFilter(setStatus)(CAR_STATUS.CLOSED)}
@@ -254,6 +298,12 @@ export default function CarRegister() {
               ],
             },
             {
+              label: 'flags',
+              value: flag,
+              onChange: onFilter(setFlag),
+              options: [{ value: ALL, label: 'Any flag' }, ...CAR_FLAG_LIST.map((value) => ({ value, label: value }))],
+            },
+            {
               label: 'departments',
               value: department,
               onChange: onFilter(setDepartment),
@@ -268,7 +318,9 @@ export default function CarRegister() {
               onChange: onFilter(setResponsible),
               options: [
                 { value: ALL, label: 'Any responsible person' },
-                ...users.map((person) => ({ value: person.id, label: person.fullName })),
+                ...[...personnel]
+                  .sort((a, b) => a.fullName.localeCompare(b.fullName))
+                  .map((person) => ({ value: person.id, label: `${person.fullName} — ${deptName(person.departmentId)}` })),
               ],
             },
             {

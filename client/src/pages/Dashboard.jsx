@@ -1,16 +1,25 @@
 /* ============================================================================
-   Dashboard (PRD 18 — QMS Dashboard)
-   Document statistics · CAR statistics · Recent activities
+   Dashboard (PRD 18; Overview: CAR Monitoring & Management Reporting)
+   ----------------------------------------------------------------------------
+   QMS Admins and Dev see what the QMS Department keeps watch on: pending and
+   overdue CARs, close-out dates, effectiveness checks, re-issued CARs, and the
+   document requests waiting on a decision.
+   A department account sees the same view of its own CARs and requests, with
+   company-wide ACTIVE document counts — the proposed answer to follow-up F4.
    ========================================================================== */
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   AlertTriangle,
+  Archive,
+  Calendar,
   CheckDone01,
   ClipboardCheck,
   Clock,
   File02,
+  FileCheck02,
   Folder,
+  Inbox01,
   Plus,
 } from '@untitledui/icons'
 import { Link, useNavigate } from 'react-router-dom'
@@ -21,47 +30,46 @@ import {
   Button,
   Card,
   CategoryBarChart,
+  CellStack,
+  DataTable,
   MetricCard,
   PageState,
-  ProgressBarBase,
   StatStrip,
   StatusBadge,
+  Tab,
+  TabList,
+  Tabs,
   TrendAreaChart,
 } from '@/components/ui'
+import { DOCUMENT_RULES } from '@/config/appConfig'
 import {
-  CAR_OPEN_STATUSES,
+  CAR_FLAG,
   CAR_QMS_QUEUE_STATUSES,
   CAR_STATUS,
   CAR_STATUS_LIST,
   DOC_STATUS,
   PERMISSION,
+  REQUEST_OPEN_STATUSES,
+  REQUEST_QMS_QUEUE_STATUSES,
+  REQUEST_STATUS,
 } from '@/config/constants'
 import { ROUTES, path } from '@/config/navigation'
 import { useAuth, useData } from '@/context/contexts'
 import { countBy } from '@/utils/filters'
-import { TODAY, daysBetween, formatDate, formatDateTime, initials, relativeDays } from '@/utils/format'
+import { TODAY, daysBetween, formatDate, formatDateTime, initials, pluralize, relativeDays } from '@/utils/format'
+import {
+  closeOutStanding,
+  effectivenessChecks,
+  monthlyTrend,
+  overdueCars,
+  pendingCars,
+  reissuedCars,
+  upcomingCloseOuts,
+} from '@/utils/monitoring'
+import { isReviewLate } from '@/utils/requests'
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-/** CARs issued per month across the twelve months ending today. */
-function buildTrend(cars) {
-  const buckets = []
-  for (let offset = 11; offset >= 0; offset -= 1) {
-    const date = new Date(TODAY.getFullYear(), TODAY.getMonth() - offset, 1)
-    buckets.push({ key: `${date.getFullYear()}-${date.getMonth()}`, label: MONTHS[date.getMonth()], value: 0 })
-  }
-
-  const index = Object.fromEntries(buckets.map((bucket, position) => [bucket.key, position]))
-
-  for (const car of cars) {
-    const issued = car.initiator?.dateIssued ? new Date(car.initiator.dateIssued) : null
-    if (!issued || Number.isNaN(issued.getTime())) continue
-    const position = index[`${issued.getFullYear()}-${issued.getMonth()}`]
-    if (position !== undefined) buckets[position].value += 1
-  }
-
-  return buckets
-}
+/** Rows shown per monitoring tab before pointing to the register. */
+const MONITOR_LIMIT = 8
 
 /** A compact row used by the side rail lists. */
 function RailRow({ to, lead, title, meta, trailing }) {
@@ -80,70 +88,268 @@ function RailRow({ to, lead, title, meta, trailing }) {
   )
 }
 
+/* -------------------------------------------------------- CAR monitoring */
+
+const CAR_COLUMN = { id: 'car', label: 'CAR', isRowHeader: true }
+const DEPARTMENT_COLUMN = { id: 'department', label: 'Department' }
+const STATUS_COLUMN = { id: 'status', label: 'Status' }
+
+/* The five things the Overview says QMS monitors, one tab each. */
+const MONITOR_TABS = [
+  {
+    id: 'pending',
+    label: 'Pending',
+    columns: [CAR_COLUMN, DEPARTMENT_COLUMN, STATUS_COLUMN, { id: 'due', label: 'Reply due' }],
+    empty: ['No CARs waiting on a reply', 'Every issued CAR has a root cause analysis and action plan on file.'],
+  },
+  {
+    id: 'overdue',
+    label: 'Overdue',
+    columns: [CAR_COLUMN, DEPARTMENT_COLUMN, { id: 'stage', label: 'Late for' }, { id: 'late', label: 'Days late', align: 'right' }],
+    empty: ['Nothing overdue', 'Every CAR is within the deadline of its current stage.'],
+  },
+  {
+    id: 'closeout',
+    label: 'Close-out dates',
+    columns: [CAR_COLUMN, DEPARTMENT_COLUMN, STATUS_COLUMN, { id: 'closeout', label: 'Planned close-out' }],
+    empty: ['No close-outs coming up', 'A CAR appears here once its action plan is accepted.'],
+  },
+  {
+    id: 'effectiveness',
+    label: 'Effectiveness checks',
+    columns: [CAR_COLUMN, DEPARTMENT_COLUMN, { id: 'check', label: 'Check' }, { id: 'due', label: 'Due' }],
+    empty: ['No effectiveness checks due', 'A CAR appears here once verification closes it out.'],
+  },
+  {
+    id: 'reissued',
+    label: 'Re-issued',
+    columns: [CAR_COLUMN, DEPARTMENT_COLUMN, { id: 'original', label: 'Re-issue of' }, { id: 'reason', label: 'Reason' }],
+    empty: ['No re-issued CARs', 'A finding raised again under a new number appears here.'],
+  },
+]
+
+function MonitoringCard({ cars, allCars, className }) {
+  const { deptName, userName, sourceById } = useData()
+
+  const rows = useMemo(
+    () => ({
+      pending: pendingCars(cars).map((car) => ({ id: car.id, car, date: car.initiator.replyDueDate })),
+      overdue: overdueCars(cars).map((car) => ({
+        id: car.id,
+        car,
+        stage: car.deadline.label,
+        date: car.deadline.date,
+        days: Math.abs(daysBetween(TODAY, car.deadline.date)),
+      })),
+      closeout: upcomingCloseOuts(cars).map((row) => ({ id: row.car.id, ...row })),
+      effectiveness: effectivenessChecks(cars).map((row) => ({ id: row.car.id, ...row })),
+      reissued: reissuedCars(cars, allCars).map((row) => ({ id: row.car.id, ...row })),
+    }),
+    [cars, allCars],
+  )
+
+  const [tab, setTab] = useState(() => (rows.overdue.length ? 'overdue' : 'pending'))
+  const active = MONITOR_TABS.find((item) => item.id === tab) || MONITOR_TABS[0]
+  const list = rows[active.id]
+
+  const renderCell = (row, columnId) => {
+    const { car } = row
+    switch (columnId) {
+      case 'car':
+        return <CellStack mono title={car.carNo} sub={sourceById(car.source)?.name} />
+      case 'department':
+        return (
+          <CellStack
+            title={deptName(car.recipient.departmentId)}
+            sub={userName(car.recipient.personnelId || car.recipient.userId)}
+          />
+        )
+      case 'status':
+        return (
+          <span className="flex flex-wrap items-center gap-1">
+            <StatusBadge status={car.status} />
+            {car.overdue && <StatusBadge status={CAR_FLAG.OVERDUE} />}
+          </span>
+        )
+      case 'due':
+        return (
+          <CellStack
+            title={formatDate(row.date)}
+            sub={car.overdue ? `${relativeDays(row.date)} · overdue` : relativeDays(row.date)}
+          />
+        )
+      case 'stage':
+        return <CellStack title={row.stage} sub={formatDate(row.date)} />
+      case 'late':
+        return <span className="font-semibold text-error-primary tabular-nums">{row.days}</span>
+      case 'closeout':
+        return <CellStack title={formatDate(row.planned)} sub={closeOutStanding(row)} />
+      case 'check':
+        return <CellStack title={row.kind} sub={car.extendedMonitoring ? 'Extended monitoring' : 'After close-out'} />
+      case 'original':
+        return row.original ? (
+          <CellStack mono title={row.original.carNo} sub={row.original.status} />
+        ) : (
+          <span className="text-quaternary">—</span>
+        )
+      case 'reason':
+        return (
+          <CellStack
+            title={row.reason || '—'}
+            sub={row.recurrence ? `Recurrence ${row.recurrence}` : null}
+          />
+        )
+      default:
+        return null
+    }
+  }
+
+  const registerLink =
+    active.id === 'overdue' ? `${ROUTES.cars}?flag=${encodeURIComponent(CAR_FLAG.OVERDUE)}` : ROUTES.cars
+
+  return (
+    <Card
+      title="CAR monitoring"
+      subtitle="Pending and overdue CARs, close-out dates, effectiveness checks and re-issued CARs"
+      className={className}
+      pad={false}
+      actions={
+        <Button color="link-color" size="sm" href={registerLink}>
+          Open register
+        </Button>
+      }
+      footer={
+        list.length > MONITOR_LIMIT && (
+          <p className="text-sm text-tertiary">
+            Showing {MONITOR_LIMIT} of {list.length}.{' '}
+            <Link to={registerLink} className="font-semibold text-brand-secondary hover:underline">
+              See all in the register
+            </Link>
+          </p>
+        )
+      }
+    >
+      <div className="overflow-x-auto border-b border-secondary px-4 py-3 md:px-5">
+        <Tabs selectedKey={tab} onSelectionChange={setTab}>
+          <TabList type="button-border" size="sm">
+            {MONITOR_TABS.map((item) => (
+              <Tab key={item.id} id={item.id} label={item.label} badge={rows[item.id].length} />
+            ))}
+          </TabList>
+        </Tabs>
+      </div>
+
+      {list.length === 0 ? (
+        <PageState icon={CheckDone01} size="sm" title={active.empty[0]} text={active.empty[1]} />
+      ) : (
+        <DataTable
+          ariaLabel={`CAR monitoring — ${active.label}`}
+          columns={active.columns}
+          rows={list.slice(0, MONITOR_LIMIT)}
+          renderCell={renderCell}
+          getHref={(row) => path.car(row.car.id)}
+        />
+      )}
+    </Card>
+  )
+}
+
+/* ------------------------------------------------------------- dashboard */
+
 export default function Dashboard() {
-  const { user, can, isQms } = useAuth()
-  const { documents, carsForUser, activityLogs, userById, userName, deptName } = useData()
+  const { user, can, isDepartment } = useAuth()
+  const {
+    cars: allCars,
+    documentsForUser,
+    carsForUser,
+    requestsForUser,
+    activityLogs,
+    personById,
+    userName,
+    deptName,
+  } = useData()
   const navigate = useNavigate()
 
   const cars = carsForUser(user)
-
-  /* ------------------------------------------------- document statistics */
-  const docStats = useMemo(() => {
-    const byStatus = countBy(documents, 'status')
-    return {
-      total: documents.length,
-      active: byStatus[DOC_STATUS.ACTIVE] || 0,
-      forReview: byStatus[DOC_STATUS.FOR_REVIEW] || 0,
-      obsolete: byStatus[DOC_STATUS.OBSOLETE] || 0,
-      archived: byStatus[DOC_STATUS.ARCHIVED] || 0,
-      deleted: byStatus[DOC_STATUS.DELETED] || 0,
-    }
-  }, [documents])
+  const documents = documentsForUser(user)
+  const requests = requestsForUser(user)
+  const carFilter = (query) => navigate(`${ROUTES.cars}?${query}`)
 
   /* ------------------------------------------------------ CAR statistics */
   const carStats = useMemo(() => countBy(cars, 'status'), [cars])
-  const openCars = cars.filter((car) => CAR_OPEN_STATUSES.includes(car.status))
+  const pending = pendingCars(cars)
+  const overdue = overdueCars(cars)
   const closed = carStats[CAR_STATUS.CLOSED] || 0
   const closureRate = cars.length ? Math.round((closed / cars.length) * 100) : 0
+  const forRevision = carStats[CAR_STATUS.FOR_REVISION] || 0
 
-  const trend = useMemo(() => buildTrend(cars), [cars])
+  const trend = useMemo(() => monthlyTrend(cars).map((bucket) => ({ label: bucket.label, value: bucket.issued })), [cars])
   const distribution = useMemo(
     () => CAR_STATUS_LIST.map((status) => ({ label: status, value: carStats[status] || 0 })),
     [carStats],
   )
 
-  /* ---------------------------------------------------- attention queues */
-  const overdue = cars.filter((car) => car.status === CAR_STATUS.OVERDUE)
-
-  /* What is sitting with the QMS Department rather than with a recipient.
-     Without this the only way to find work that has arrived is to filter the
-     register by hand. */
-  const awaitingQms = isQms
-    ? cars
+  /* What is sitting with the QMS Department rather than with a recipient. */
+  const awaitingQms = isDepartment
+    ? []
+    : cars
         .filter((car) => CAR_QMS_QUEUE_STATUSES.includes(car.status))
-        .sort((a, b) => String(a.carNo).localeCompare(String(b.carNo)))
-    : []
+        .sort((a, b) => String(a.deadline?.date || '9999').localeCompare(String(b.deadline?.date || '9999')))
 
+  /* The next deadline of every CAR, whatever stage it is at. */
   const dueSoon = cars
-    .filter((car) => !car.recipient.dateSubmitted && car.status !== CAR_STATUS.CLOSED)
-    .map((car) => ({ car, days: daysBetween(TODAY, car.initiator.replyDueDate) }))
+    .filter((car) => car.deadline?.date && !car.overdue)
+    .map((car) => ({ car, days: daysBetween(TODAY, car.deadline.date) }))
     .filter((entry) => entry.days >= 0 && entry.days <= 14)
     .sort((a, b) => a.days - b.days)
 
-  const reviewDue = documents
-    .filter((doc) => doc.status !== DOC_STATUS.ARCHIVED && daysBetween(TODAY, doc.reviewDate) <= 60)
-    .sort((a, b) => new Date(a.reviewDate) - new Date(b.reviewDate))
+  /* ------------------------------------------------- document statistics */
+  const byDocStatus = countBy(documents, 'status')
+  /* A department answers for the documents it owns; QMS for all of them. */
+  const ownDocuments = isDepartment ? documents.filter((doc) => doc.departmentId === user.departmentId) : documents
+  const inReviewWindow = (doc, days) => doc.status === DOC_STATUS.ACTIVE && daysBetween(TODAY, doc.reviewDate) <= days
+  const reviewDue = ownDocuments.filter((doc) => inReviewWindow(doc, DOCUMENT_RULES.reviewReminderDays))
+  const reviewSoon = ownDocuments
+    .filter((doc) => inReviewWindow(doc, 60))
+    .sort((a, b) => String(a.reviewDate).localeCompare(String(b.reviewDate)))
     .slice(0, 5)
 
+  /* --------------------------------------------------- document requests */
+  const awaitingDecision = requests.filter((request) => REQUEST_QMS_QUEUE_STATUSES.includes(request.status))
+  const lateReviews = awaitingDecision.filter(isReviewLate)
+  const openRequests = requests.filter((request) => REQUEST_OPEN_STATUSES.includes(request.status))
+  const returnedToYou = openRequests.filter(
+    (request) => request.status === REQUEST_STATUS.RETURNED && request.originator.accountId === user.id,
+  )
+
+  /* Requests this QMS Admin can decide — never their own — nearest limit first. */
+  const requestQueue = can(PERMISSION.DOC_REQUEST_REVIEW)
+    ? awaitingDecision
+        .filter((request) => request.originator.accountId !== user.id)
+        .sort((a, b) => String(a.reviewDueDate).localeCompare(String(b.reviewDueDate)))
+    : []
+
   /* ----------------------------------------------------- recent activity */
-  const feedItems = activityLogs.slice(0, 8).map((entry) => ({
+  /* A department sees its own account's actions and those on its CARs and requests. */
+  const visibleCars = new Set(cars.map((car) => car.id))
+  const visibleRequests = new Set(requests.map((request) => request.id))
+  const feedEntries = isDepartment
+    ? activityLogs.filter(
+        (entry) =>
+          entry.userId === user.id ||
+          (entry.recordType === 'car' && visibleCars.has(entry.recordId)) ||
+          (entry.recordType === 'request' && visibleRequests.has(entry.recordId)),
+      )
+    : activityLogs
+
+  const feedItems = feedEntries.slice(0, 8).map((entry) => ({
     id: entry.id,
-    actor: initials(userName(entry.userId)),
-    actorName: userName(entry.userId),
-    avatarUrl: userById(entry.userId)?.avatarUrl,
+    actor: initials(userName(entry.personnelId || entry.userId)),
+    actorName: userName(entry.personnelId || entry.userId),
+    avatarUrl: personById(entry.personnelId || entry.userId)?.avatarUrl,
     title: (
       <>
-        <span className="font-semibold text-primary">{userName(entry.userId)}</span>{' '}
+        <span className="font-semibold text-primary">{userName(entry.personnelId || entry.userId)}</span>{' '}
         <span>{entry.action.toLowerCase()}</span>
         {entry.recordLabel && (
           <>
@@ -156,6 +362,10 @@ export default function Dashboard() {
               <Link to={path.document(entry.recordId)} className="font-medium text-brand-secondary hover:underline">
                 {entry.recordLabel}
               </Link>
+            ) : entry.recordType === 'request' ? (
+              <Link to={path.request(entry.recordId)} className="font-medium text-brand-secondary hover:underline">
+                {entry.recordLabel}
+              </Link>
             ) : (
               <span className="font-medium text-primary">{entry.recordLabel}</span>
             )}
@@ -163,17 +373,19 @@ export default function Dashboard() {
         )}
       </>
     ),
-    meta: formatDateTime(entry.timestamp),
+    meta: entry.personnelId
+      ? `${formatDateTime(entry.timestamp)} · via ${userName(entry.userId)}`
+      : formatDateTime(entry.timestamp),
   }))
 
   return (
     <Page>
       <PageHeader
-        title={`Good day, ${user.fullName.split(' ')[0]}`}
+        title={`Good day, ${isDepartment ? deptName(user.departmentId) : user.fullName.split(' ')[0]}`}
         subtitle={
-          isQms
-            ? 'System-wide view of the controlled document repository and the corrective action register.'
-            : `Documents and Corrective Action Reports relevant to ${deptName(user.departmentId)}.`
+          isDepartment
+            ? `Corrective Action Reports and document requests for ${deptName(user.departmentId)}, and the controlled documents in use.`
+            : 'What the QMS Department monitors: pending and overdue CARs, close-out dates, effectiveness checks, re-issued CARs and document requests.'
         }
         actions={
           <>
@@ -189,62 +401,165 @@ export default function Dashboard() {
         }
       />
 
-      {/* ------------------------------------------------------- headline KPIs */}
+      {/* ------------------------------------------------------- CAR tiles */}
       <StatStrip>
         <MetricCard
-          label="Total CARs"
-          value={cars.length}
-          hint={`${openCars.length} still open`}
-          icon={ClipboardCheck}
+          label={isDepartment ? 'Awaiting your reply' : 'Pending CARs'}
+          value={pending.length}
+          hint={forRevision ? `${forRevision} returned for revision` : 'Root cause and action plan due'}
+          icon={Clock}
           color="brand"
-          onClick={() => navigate(ROUTES.cars)}
+          onClick={() => carFilter(`status=${encodeURIComponent(CAR_STATUS.PENDING)}`)}
         />
         <MetricCard
           label="Overdue"
           value={overdue.length}
-          hint="Reply due date passed"
+          hint="Late for their current stage"
           icon={AlertTriangle}
           color="error"
-          onClick={() => navigate(`${ROUTES.cars}?status=${encodeURIComponent(CAR_STATUS.OVERDUE)}`)}
+          onClick={() => carFilter(`flag=${encodeURIComponent(CAR_FLAG.OVERDUE)}`)}
         />
+        {isDepartment ? (
+          <MetricCard
+            label="Being implemented"
+            value={carStats[CAR_STATUS.ACTIVE] || 0}
+            hint="Action plans accepted"
+            icon={ClipboardCheck}
+            color="brand"
+            onClick={() => carFilter(`status=${encodeURIComponent(CAR_STATUS.ACTIVE)}`)}
+          />
+        ) : (
+          <MetricCard
+            label="Waiting on QMS"
+            value={awaitingQms.length}
+            hint="Reviews, verifications and effectiveness checks"
+            icon={Inbox01}
+            color="brand"
+          />
+        )}
         <MetricCard
           label="Closed"
           value={closed}
-          hint={`${closureRate}% of all CARs issued`}
+          hint={`${closureRate}% of ${pluralize(cars.length, 'CAR')}`}
           icon={CheckDone01}
           color="success"
-          onClick={() => navigate(`${ROUTES.cars}?status=${encodeURIComponent(CAR_STATUS.CLOSED)}`)}
-        />
-        <MetricCard
-          label="Controlled documents"
-          value={docStats.total}
-          hint={`${docStats.forReview} due for review`}
-          icon={File02}
-          color="brand"
-          onClick={() => navigate(ROUTES.documents)}
+          onClick={() => carFilter(`status=${encodeURIComponent(CAR_STATUS.CLOSED)}`)}
         />
       </StatStrip>
 
-      {/* ------------------------------------------------------------- charts */}
+      {/* ---------------------------------------------- monitoring + queues */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card
-          title="CARs issued"
-          subtitle="Volume raised per month over the last twelve months"
-          className="xl:col-span-2"
-        >
-          <TrendAreaChart data={trend} />
-        </Card>
+        <MonitoringCard cars={cars} allCars={allCars} className="xl:col-span-2" />
 
-        <Card title="Where CARs stand" subtitle="Register by current status">
-          <CategoryBarChart data={distribution} />
-        </Card>
+        <div className="flex flex-col gap-4">
+          {awaitingQms.length > 0 && (
+            <Card
+              title="Waiting on the QMS Department"
+              subtitle="Nearest deadline first"
+              bodyClassName="px-2 md:px-3"
+            >
+              {awaitingQms.slice(0, 6).map((car) => (
+                <RailRow
+                  key={car.id}
+                  to={path.car(car.id)}
+                  title={car.carNo}
+                  meta={`${deptName(car.recipient.departmentId)} · ${
+                    car.deadline ? `${car.deadline.label.toLowerCase()} ${formatDate(car.deadline.date)}` : 'no deadline set'
+                  }`}
+                  trailing={<StatusBadge status={car.overdue ? CAR_FLAG.OVERDUE : car.status} />}
+                />
+              ))}
+            </Card>
+          )}
+
+          <Card title="Coming deadlines" subtitle="Next 14 days, any stage" bodyClassName="px-2 md:px-3">
+            {dueSoon.length === 0 ? (
+              <PageState icon={Calendar} size="sm" title="Nothing due in the next 14 days" />
+            ) : (
+              dueSoon.slice(0, 6).map(({ car }) => (
+                <RailRow
+                  key={car.id}
+                  to={path.car(car.id)}
+                  title={car.carNo}
+                  meta={`${deptName(car.recipient.departmentId)} · ${car.deadline.label}`}
+                  trailing={
+                    <span className="shrink-0 text-xs font-medium text-tertiary">{relativeDays(car.deadline.date)}</span>
+                  }
+                />
+              ))
+            )}
+          </Card>
+        </div>
       </div>
 
-      {/* --------------------------------------------- activity + attention rail */}
+      {/* -------------------------------------------------- document tiles */}
+      {isDepartment ? (
+        <StatStrip columns={3}>
+          <MetricCard
+            label="Documents in use"
+            value={byDocStatus[DOC_STATUS.ACTIVE] || 0}
+            hint="Company-wide, current revisions"
+            icon={File02}
+            color="brand"
+            onClick={() => navigate(ROUTES.documents)}
+          />
+          <MetricCard
+            label="Your documents due for review"
+            value={reviewDue.length}
+            hint={`Within ${DOCUMENT_RULES.reviewReminderDays} days or past their review date`}
+            icon={Calendar}
+            color="warning"
+          />
+          <MetricCard
+            label="Open document requests"
+            value={openRequests.length}
+            hint={returnedToYou.length ? `${returnedToYou.length} returned to you for revision` : 'Raised by or about your department'}
+            icon={FileCheck02}
+            color="brand"
+            onClick={() => navigate(ROUTES.requests)}
+          />
+        </StatStrip>
+      ) : (
+        <StatStrip>
+          <MetricCard
+            label="Active documents"
+            value={byDocStatus[DOC_STATUS.ACTIVE] || 0}
+            hint="In use across the company"
+            icon={File02}
+            color="brand"
+            onClick={() => navigate(ROUTES.documents)}
+          />
+          <MetricCard
+            label="Obsolete"
+            value={byDocStatus[DOC_STATUS.OBSOLETE] || 0}
+            hint="Archived for their retention period"
+            icon={Archive}
+            color="gray"
+            onClick={() => navigate(ROUTES.documents)}
+          />
+          <MetricCard
+            label="Due for review"
+            value={reviewDue.length}
+            hint={`Within ${DOCUMENT_RULES.reviewReminderDays} days or past their review date`}
+            icon={Calendar}
+            color="warning"
+          />
+          <MetricCard
+            label="Requests awaiting review"
+            value={awaitingDecision.length}
+            hint={lateReviews.length ? `${lateReviews.length} past the review limit` : 'All within the review limit'}
+            icon={FileCheck02}
+            color={lateReviews.length ? 'error' : 'brand'}
+            onClick={() => navigate(ROUTES.requests)}
+          />
+        </StatStrip>
+      )}
+
+      {/* --------------------------------------------- activity + document rail */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card
           title="Recent activity"
-          subtitle="Document and CAR actions across the system"
+          subtitle={isDepartment ? 'Your account, and the CARs and requests of your department' : 'Document and CAR actions across the system'}
           className="xl:col-span-2"
           actions={
             can(PERMISSION.ACTIVITY_LOG_VIEW) && (
@@ -262,68 +577,48 @@ export default function Dashboard() {
         </Card>
 
         <div className="flex flex-col gap-4">
-          <Card title="CAR closure rate" subtitle="Closed against total issued">
-            <div className="mb-3 flex items-end justify-between gap-3">
-              <span className="text-display-sm font-semibold text-primary">{closureRate}%</span>
-              <span className="text-sm text-tertiary">
-                {closed} of {cars.length}
-              </span>
-            </div>
-            <ProgressBarBase value={closureRate} />
-          </Card>
-
-          {awaitingQms.length > 0 && (
-            <Card
-              title="Waiting on the QMS Department"
-              subtitle="Responses to review and countermeasures to verify"
-              bodyClassName="px-2 md:px-3"
-            >
-              {awaitingQms.map((car) => (
+          {requestQueue.length > 0 && (
+            <Card title="Document requests to decide" subtitle="Nearest review limit first" bodyClassName="px-2 md:px-3">
+              {requestQueue.map((request) => (
                 <RailRow
-                  key={car.id}
-                  to={path.car(car.id)}
-                  title={car.carNo}
-                  meta={`${deptName(car.recipient.departmentId)} · ${userName(car.recipient.userId)}`}
-                  trailing={<StatusBadge status={car.status} />}
-                />
-              ))}
-            </Card>
-          )}
-
-          {overdue.length > 0 && (
-            <Card title="Overdue CARs" subtitle="Due date passed without completion" bodyClassName="px-2 md:px-3">
-              {overdue.map((car) => (
-                <RailRow
-                  key={car.id}
-                  to={path.car(car.id)}
-                  title={car.carNo}
-                  meta={`${deptName(car.recipient.departmentId)} · due ${formatDate(car.initiator.replyDueDate)}`}
-                  trailing={<StatusBadge status={CAR_STATUS.OVERDUE} />}
-                />
-              ))}
-            </Card>
-          )}
-
-          {dueSoon.length > 0 && (
-            <Card title="Reply due soon" subtitle="Next 14 days" bodyClassName="px-2 md:px-3">
-              {dueSoon.map(({ car }) => (
-                <RailRow
-                  key={car.id}
-                  to={path.car(car.id)}
-                  title={car.carNo}
-                  meta={deptName(car.recipient.departmentId)}
+                  key={request.id}
+                  to={path.request(request.id)}
+                  title={request.controlNo}
+                  meta={`${request.type} · ${request.documentCode} ${request.title}`}
                   trailing={
-                    <span className="shrink-0 text-xs font-medium text-tertiary">
-                      {relativeDays(car.initiator.replyDueDate)}
-                    </span>
+                    isReviewLate(request) ? (
+                      <StatusBadge status="Overdue" label="Late" />
+                    ) : (
+                      <span className="shrink-0 text-xs font-medium text-tertiary">
+                        {relativeDays(request.reviewDueDate)}
+                      </span>
+                    )
                   }
                 />
               ))}
             </Card>
           )}
 
-          <Card title="Documents due for review" subtitle="Within the next 60 days" bodyClassName="px-2 md:px-3">
-            {reviewDue.length === 0 ? (
+          {isDepartment && openRequests.length > 0 && (
+            <Card title="Your document requests" subtitle="Still open" bodyClassName="px-2 md:px-3">
+              {openRequests.map((request) => (
+                <RailRow
+                  key={request.id}
+                  to={path.request(request.id)}
+                  title={request.controlNo}
+                  meta={`${request.type} · ${request.documentCode} ${request.title}`}
+                  trailing={<StatusBadge status={request.status} />}
+                />
+              ))}
+            </Card>
+          )}
+
+          <Card
+            title={isDepartment ? 'Your documents due for review' : 'Documents due for review'}
+            subtitle="Within the next 60 days"
+            bodyClassName="px-2 md:px-3"
+          >
+            {reviewSoon.length === 0 ? (
               <PageState
                 icon={CheckDone01}
                 size="sm"
@@ -331,7 +626,7 @@ export default function Dashboard() {
                 text="No document reaches its review date in the next 60 days."
               />
             ) : (
-              reviewDue.map((doc) => (
+              reviewSoon.map((doc) => (
                 <RailRow
                   key={doc.id}
                   to={path.document(doc.id)}
@@ -345,6 +640,21 @@ export default function Dashboard() {
             )}
           </Card>
         </div>
+      </div>
+
+      {/* ------------------------------------------------------------- charts */}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <Card
+          title="CARs issued"
+          subtitle="Volume raised per month over the last twelve months"
+          className="xl:col-span-2"
+        >
+          <TrendAreaChart data={trend} />
+        </Card>
+
+        <Card title="Where CARs stand" subtitle="Register by current status">
+          <CategoryBarChart data={distribution} />
+        </Card>
       </div>
     </Page>
   )

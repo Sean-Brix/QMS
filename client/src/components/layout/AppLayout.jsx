@@ -12,7 +12,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { Avatar, ButtonUtility, Icon } from '@/components/ui'
 import { APP } from '@/config/appConfig'
-import { CAR_OPEN_STATUSES } from '@/config/constants'
+import { CAR_OPEN_STATUSES, REQUEST_QMS_QUEUE_STATUSES, REQUEST_STATUS, ROLE } from '@/config/constants'
 import { ROUTES, SEGMENT_LABELS } from '@/config/navigation'
 import { useAuth, useData } from '@/context/contexts'
 import { useTheme } from '@/providers/theme-provider'
@@ -41,7 +41,7 @@ function Breadcrumbs({ crumbs }) {
 
 export default function AppLayout() {
   const { user } = useAuth()
-  const { carsForUser, notificationsForUser } = useData()
+  const { carsForUser, notificationsForUser, requestsForUser } = useData()
   const { theme, setTheme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
@@ -54,16 +54,25 @@ export default function AppLayout() {
   const notifications = notificationsForUser(user.id)
   const unread = notifications.filter((notification) => !notification.read).length
 
+  /* A QMS Admin is prompted by requests waiting for a decision they can make;
+     any other account by its own requests that came back for revision. */
+  const myRequests = requestsForUser(user)
+  const requestsNeedingMe =
+    user.role === ROLE.QMS
+      ? myRequests.filter((r) => REQUEST_QMS_QUEUE_STATUSES.includes(r.status) && r.originator.accountId !== user.id)
+      : myRequests.filter((r) => r.status === REQUEST_STATUS.RETURNED && r.originator.accountId === user.id)
+
   const badges = {
     notifications: unread,
     openCars: myCars.filter((car) => CAR_OPEN_STATUSES.includes(car.status)).length,
     totalCars: myCars.length,
+    requests: requestsNeedingMe.length,
   }
 
   const crumbs = useMemo(() => {
     const segments = location.pathname.split('/').filter(Boolean)
     return segments.map((segment, index) => ({
-      label: SEGMENT_LABELS[segment] || segment.toUpperCase(),
+      label: SEGMENT_LABELS[`${segments[index - 1]}/${segment}`] || SEGMENT_LABELS[segment] || segment.toUpperCase(),
       to: `/${segments.slice(0, index + 1).join('/')}`,
       last: index === segments.length - 1,
     }))

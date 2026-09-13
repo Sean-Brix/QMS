@@ -67,22 +67,28 @@ function WorkloadCard({ open, total, onView }) {
   )
 }
 
-/** The account block: who is signed in, and the way out. */
-function AccountCard({ user, identity, onLogout }) {
+/** The account block: who is signed in, a way to their account settings, and the way out. */
+function AccountCard({ user, identity, onOpen, onLogout }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-secondary">
-      <Avatar
-        size="md"
-        src={user.avatarUrl}
-        initials={initials(user.fullName)}
-        alt={user.fullName}
-        status="online"
-      />
+    <div className="flex items-center gap-1 rounded-xl p-1.5 ring-1 ring-secondary">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg p-1.5 text-left outline-focus-ring transition duration-100 ease-linear hover:bg-primary_hover focus-visible:outline-2"
+      >
+        <Avatar
+          size="md"
+          src={user.avatarUrl}
+          initials={initials(user.fullName)}
+          alt={user.fullName}
+          status="online"
+        />
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-primary">{user.fullName}</p>
-        <p className="truncate text-xs text-tertiary">{identity}</p>
-      </div>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-primary">{user.fullName}</span>
+          <span className="block truncate text-xs text-tertiary">{identity}</span>
+        </span>
+      </button>
 
       <ButtonUtility size="xs" color="tertiary" tooltip="Log out" icon={LogOut01} onClick={onLogout} />
     </div>
@@ -190,7 +196,15 @@ export default function Sidebar({ badges, onNavigate }) {
             onNavigate?.()
           }}
         />
-        <AccountCard user={user} identity={identityFor(user)} onLogout={logout} />
+        <AccountCard
+          user={user}
+          identity={identityFor(user)}
+          onOpen={() => {
+            navigate(ROUTES.account)
+            onNavigate?.()
+          }}
+          onLogout={logout}
+        />
       </div>
     </aside>
   )

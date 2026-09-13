@@ -14,31 +14,70 @@ as one continuous session.
 
 | Role | Username | Password | Sees |
 |---|---|---|---|
-| QMS Department | `msantos` | `qms123` | Everything: all CARs, the repository, logs, reports, users, settings |
-| QMS Department | `jcruz` | `user123` | Same, as a second reviewer |
-| Department | `rdelacruz` | `user123` | Production — only CARs raised by or routed to their department |
-| Department | `avillanueva` | `user123` | Quality Control |
-| Department | `jaquino` | `user123` | Deactivated, to demonstrate the blocked-login path |
+| QMS Admin | `msantos` | `qms123` | Everything: all CARs, the repository, logs, reports, accounts, personnel, settings |
+| QMS Admin | `jcruz` | `user123` | Same, as a second reviewer |
+| Department | `production` | `dept123` | Production's shared account — its CARs and its personnel list |
+| Department | `qualitycontrol` | `dept123` | Quality Control's shared account |
+| Department | `hr` | `dept123` | Also signs in with Google as `hr.department.company@gmail.com` |
+| Department | `warehouse` | `dept123` | Deactivated, to demonstrate the blocked-login path |
+| Dev | `dev` | `dev123` | Everything, plus the System Monitor |
+
+Each department signs in with **one shared account**. The people behind it are kept
+on its Personnel page; they don't sign in, but they are the names recorded on CARs
+and the addresses notifications go to.
 
 Credentials are plaintext on purpose: there is no server to authenticate
 against. Hashing and real authentication belong to the implementation phase.
 
 ## What works
 
-- **The CAR lifecycle** — issue with automatic numbering, route to a department,
-  respond with root cause and action plan, QMS review, return for revision,
-  verification of closure, effectiveness validation, closure. Separation of
-  duties is enforced: nobody reviews their own work.
-- **The document repository** — categories, revisions with history, review
-  dates, statuses, upload and revise.
-- **Monitoring** — automatic overdue flagging, due-soon and overdue reminders,
-  in-app notifications, a dashboard queue of what is waiting on the QMS
-  Department.
-- **Records** — activity logging across every module, and weekly/monthly reports.
+- **Accounts** — QMS Admin, Department and Dev roles; shared department accounts
+  with personnel lists; account creation with a temporary password to hand over;
+  password reset; deactivation; closing an account without deleting its records;
+  changing your own password under a moderate policy; linking Google sign-in.
+- **The CAR lifecycle** — issue with `XXX-YY-ZZZ` numbering and a 5-working-day
+  reply period; the department responds with a root cause and any number of
+  actions, each with its own responsible person and target date; QMS accepts or
+  returns the plan (returned responses are kept); the department records the
+  implementation; QMS verifies the countermeasure a day after the target date and
+  checks effectiveness six months after close-out or at the next internal audit.
+  Results close the CAR, keep it under extended monitoring, send it back for
+  further action, or re-issue it as a linked CAR. Overdue is a flag on whichever
+  stage deadline has passed, and nobody reviews their own work.
+- **Document requests** — every new document, revision and obsoletion is a
+  Document Review / Change Notice: raised with its originator and department-head
+  review, timed against the form's maximum review limits, then returned,
+  disapproved or approved by a QMS Admin (never one who raised it). Approval
+  publishes the change to the repository in the same step.
+- **The document repository** — categories, levels, revisions with history
+  (previous revisions kept as obsolete), review dates, and download with a watermark.
+  Departments see ACTIVE documents and current revisions only; QMS Admins also see
+  obsolete documents and earlier revisions, and can restore one through a revision
+  request. Every view and download is logged.
+- **Monitoring** — a dashboard of what the QMS Department watches: pending and
+  overdue CARs, close-out dates, effectiveness checks, re-issued CARs, and
+  document requests waiting on a decision. A department account sees the same
+  for its own CARs and requests. Reminders go out before and after every stage
+  deadline and document review date; each notification shows who it was emailed to.
+- **Reports** — a Management Review report (CARs by source, department and
+  status, overdue CARs, close-out dates, effectiveness results, re-issued CARs,
+  document requests and the monthly trend) and the weekly/monthly activity log
+  report, for any week, month, quarter or year. Print or save as PDF, or export
+  a real Excel workbook generated in the browser.
+- **Settings** — saved changes take effect straight away and each one is logged:
+  CAR number format (with a live preview), sequence restarts, reply period,
+  reminder timing, verification and effectiveness timing, the next internal
+  audit, DRCN review-time limits, watermark templates, upload rules, the password
+  policy and branding. Document categories and CAR sources are master lists a
+  QMS Admin can add to, edit and deactivate; one nothing uses can be deleted.
+  Each document carries its own watermark template, or none.
+- **Records** — activity logging across every module, including report exports
+  and settings changes.
 
-Search, filtering, sorting and pagination all run for real. Mocked: authentication,
-the bytes of an uploaded file, file download, and the dynamic watermark (shown as
-text).
+Search, filtering, sorting, pagination and Excel export all run for real. Mocked:
+authentication (including Google sign-in, which matches a linked address instead of
+opening Google), email sending (the recipients are recorded, nothing is sent), the
+bytes of an uploaded file, document download, and the dynamic watermark (shown as text).
 
 ## Fixed clock
 

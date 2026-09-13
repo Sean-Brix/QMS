@@ -10,32 +10,40 @@
    ========================================================================== */
 
 export const STATUS_COLOR = {
-  /* --- CAR statuses (PRD 13) --------------------------------------------- */
-  'Active': 'blue',
-  'Pending': 'gray',
+  /* --- CAR statuses and register flags ----------------------------------- */
+  'Pending': 'blue',
   'Under Review': 'indigo',
   'For Revision': 'warning',
-  'Overdue': 'error',
+  'Active': 'brand',
   'For Verification': 'purple',
+  'For Effectiveness Check': 'sky',
   'Closed': 'success',
+  'Overdue': 'error',
+  'Extended monitoring': 'warning',
+  'Re-issued': 'gray',
+  'Re-issue of an earlier CAR': 'orange',
 
-  /* --- Document statuses (PRD 8.4) --------------------------------------- */
+  /* --- Document statuses -------------------------------------------------- */
   'ACTIVE': 'success',
-  'FOR REVIEW': 'warning',
   'OBSOLETE': 'gray',
-  'ARCHIVED': 'gray',
-  'SUPERSEDED': 'gray',
-  'DELETED': 'error',
+  'Review due': 'warning',
 
-  /* --- Account state ------------------------------------------------------ */
+  /* --- Document request statuses (DRCN) ---------------------------------- */
+  'Submitted': 'brand',
+  'Returned for Revision': 'warning',
+  'Approved': 'success',
+  'Disapproved': 'error',
+  'Cancelled': 'gray',
+
+  /* --- Account and personnel state --------------------------------------- */
   'Inactive': 'gray',
+  'Archived': 'slate',
 
   /* --- Verification disposition + result (PRD 10.10) ---------------------- */
   'OPEN': 'warning',
   'CLOSED': 'success',
   'Pass': 'success',
   'Fail': 'error',
-  'Fail (CAR Returned for Further Processing)': 'error',
   'Requires Extended Monitoring': 'warning',
   'Further Action Required': 'purple',
 

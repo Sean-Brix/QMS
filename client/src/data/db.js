@@ -13,9 +13,11 @@ import carSources from '@db/car_sources.json'
 import carStatuses from '@db/car_statuses.json'
 import departments from '@db/departments.json'
 import documentCategories from '@db/document_categories.json'
+import documentRequests from '@db/document_requests.json'
 import documentRevisions from '@db/document_revisions.json'
 import documents from '@db/documents.json'
 import notifications from '@db/notifications.json'
+import personnel from '@db/personnel.json'
 import roles from '@db/roles.json'
 import users from '@db/users.json'
 
@@ -35,11 +37,13 @@ const asset = (path) =>
 
 export const tables = {
   users: () => clone(users).map((u) => ({ ...u, avatarUrl: asset(u.avatarUrl) })),
+  personnel: () => clone(personnel).map((p) => ({ ...p, avatarUrl: asset(p.avatarUrl) })),
   roles: () => clone(roles),
   departments: () => clone(departments),
   documentCategories: () => clone(documentCategories),
   documents: () => clone(documents),
   documentRevisions: () => clone(documentRevisions),
+  documentRequests: () => clone(documentRequests),
   cars: () => clone(cars),
   carSources: () => clone(carSources),
   carStatuses: () => clone(carStatuses),
@@ -50,18 +54,5 @@ export const tables = {
 
 /** Load every table at once — used to seed the in-memory store on boot. */
 export function loadDatabase() {
-  return {
-    users: tables.users(),
-    roles: tables.roles(),
-    departments: tables.departments(),
-    documentCategories: tables.documentCategories(),
-    documents: tables.documents(),
-    documentRevisions: tables.documentRevisions(),
-    cars: tables.cars(),
-    carSources: tables.carSources(),
-    carStatuses: tables.carStatuses(),
-    carAttachments: tables.carAttachments(),
-    activityLogs: tables.activityLogs(),
-    notifications: tables.notifications(),
-  }
+  return Object.fromEntries(Object.entries(tables).map(([name, load]) => [name, load()]))
 }

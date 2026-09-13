@@ -7,34 +7,133 @@
     "logoInitials": "QMS"
   },
   "car": {
-    "numberFormat": "CAR-{YYYY}-{####}",
-    "numberFormatNote": "Exact numbering format to be finalized with the QMS Department.",
-    "nextSequence": 16,
-    "replyDueDays": 14,
+    "numberFormat": "{SRC}-{YY}-{ZZZ}",
+    "numberFormatNote": "XXX-YY-ZZZ: source classification, last two digits of the year, and a sequence from 001 to 999.",
+    "sequenceReset": "source-year",
+    "sequenceResetNote": "When the sequence restarts is still open with the client (follow-up D3).",
+    "replyDueWorkingDays": 5,
     "dueSoonReminderDays": 3,
-    "autoFlagOverdue": true
+    "autoFlagOverdue": true,
+    "verificationOffsetDays": 1,
+    "effectivenessMonths": 6,
+    "nextInternalAudit": "2026-11-16",
+    "extendedMonitoringMonths": 3
   },
   "document": {
     "dynamicWatermark": true,
-    "watermarkTemplate": "{FULLNAME} | {EMPLOYEE_NO} | {DATETIME} | UNCONTROLLED WHEN PRINTED",
+    "watermarkNote": "QMS Admin decides per document whether a watermark applies and which template (Confirmed #18). The fields each template shows are follow-up C3.",
+    "defaultWatermarkTemplateId": "WM-01",
+    "watermarkTemplates": [
+      {
+        "id": "WM-01",
+        "name": "Controlled copy",
+        "template": "{DEPARTMENT} | {PERSONNEL} | {DATETIME} | CONTROLLED COPY"
+      },
+      {
+        "id": "WM-02",
+        "name": "Controlled copy with document and revision",
+        "template": "{DOC_CODE} Rev {REVISION} | {DEPARTMENT} | {PERSONNEL} | {DATETIME} | CONTROLLED COPY"
+      },
+      {
+        "id": "WM-03",
+        "name": "Form — uncontrolled once printed",
+        "template": "{DOC_CODE} Rev {REVISION} | {DEPARTMENT} | {DATETIME} | UNCONTROLLED WHEN PRINTED"
+      }
+    ],
     "retainPreviousVersions": true,
     "activeLabel": "ACTIVE",
+    "revisionFileSuffix": "_rev{N}",
     "reviewReminderDays": 30,
-    "allowedFileTypes": ["PDF", "DOCX", "XLSX", "PNG", "JPG"],
-    "maxFileSizeMB": 25
+    "allowedFileTypes": [
+      "PDF",
+      "DOCX",
+      "XLSX",
+      "PNG",
+      "JPG"
+    ],
+    "maxFileSizeMB": 25,
+    "drcnReviewLimits": [
+      {
+        "processType": "A-Regular",
+        "levels": [
+          1,
+          2
+        ],
+        "condition": "Max of 5 days",
+        "maxDays": 5
+      },
+      {
+        "processType": "A-Regular",
+        "levels": [
+          3,
+          4
+        ],
+        "condition": "1 document = max 1 day",
+        "documents": [
+          1,
+          1
+        ],
+        "maxDays": 1
+      },
+      {
+        "processType": "A-Regular",
+        "levels": [
+          3,
+          4
+        ],
+        "condition": "2 to 4 = max of 2 days",
+        "documents": [
+          2,
+          4
+        ],
+        "maxDays": 2
+      },
+      {
+        "processType": "A-Regular",
+        "levels": [
+          3,
+          4
+        ],
+        "condition": "5 above = max of 3 days",
+        "documents": [
+          5,
+          null
+        ],
+        "maxDays": 3
+      },
+      {
+        "processType": "B-Urgent",
+        "levels": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "condition": "One (1) day only for urgent document",
+        "maxDays": 1
+      }
+    ]
   },
   "session": {
     "idleTimeoutMinutes": 30,
     "maxFailedLoginAttempts": 5,
-    "passwordMinLength": 8
+    "passwordMinLength": 8,
+    "passwordRequiresLetterAndNumber": true,
+    "forcePasswordChangeOnFirstLogin": false
   },
   "reporting": {
-    "periods": ["Weekly", "Monthly"],
+    "periods": [
+      "Weekly",
+      "Monthly",
+      "Quarterly",
+      "Yearly"
+    ],
+    "periodsNote": "Weekly and monthly come from the PRD activity report; quarterly and yearly serve Management Review until the client confirms its reporting cycle (follow-up F5).",
     "defaultPeriod": "Monthly"
   },
   "notifications": {
     "inApp": true,
-    "email": false,
-    "emailNote": "Email notifications are planned as a future enhancement."
+    "email": true,
+    "emailNote": "Email mirrors each in-app notification to the responsible personnel. Sending is simulated in this prototype."
   }
 }

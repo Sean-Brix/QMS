@@ -3,7 +3,7 @@
    ========================================================================== */
 
 import { useState } from 'react'
-import { Bell01, Check, ChevronRight, InfoCircle } from '@untitledui/icons'
+import { Bell01, Check, ChevronRight, InfoCircle, Mail01 } from '@untitledui/icons'
 import { useNavigate } from 'react-router-dom'
 
 import { Page, PageHeader } from '@/components/layout/PageHeader'
@@ -41,13 +41,18 @@ export default function Notifications() {
     if (notification.recordType === 'car' && notification.recordId) navigate(path.car(notification.recordId))
     if (notification.recordType === 'document' && notification.recordId)
       navigate(path.document(notification.recordId))
+    if (notification.recordType === 'request' && notification.recordId) navigate(path.request(notification.recordId))
   }
 
   return (
     <Page>
       <PageHeader
         title="Notifications"
-        subtitle="CAR issuance, approaching due dates, overdue reports, returns for revision, verification and closure."
+        subtitle={
+          NOTIFICATION_RULES.email
+            ? 'CAR stages, due dates and overdue reminders, document requests and review dates. Each notification is also emailed to the person it concerns — simulated in this prototype.'
+            : 'CAR stages, due dates and overdue reminders, document requests and review dates.'
+        }
         actions={
           unread.length > 0 && (
             <Button color="secondary" size="md" iconLeading={Check} onClick={() => markAllNotificationsRead(user.id)}>
@@ -75,7 +80,7 @@ export default function Notifications() {
           <PageState
             icon={Bell01}
             title={tab === 'unread' ? 'No unread notifications' : 'No notifications yet'}
-            text="You will be notified when a CAR is issued to you, when a due date approaches, and when a report is returned, verified or closed."
+            text="You will be notified when a CAR reaches you or one of its due dates approaches, when a document request is decided, and when a document is due for review."
           />
         ) : (
           <ul className="divide-y divide-secondary">
@@ -109,7 +114,18 @@ export default function Notifications() {
                       </div>
 
                       <p className="mt-0.5 text-sm text-tertiary">{notification.message}</p>
-                      <p className="mt-2 text-xs text-quaternary">{formatDateTime(notification.timestamp)}</p>
+                      <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-quaternary">
+                        <span>{formatDateTime(notification.timestamp)}</span>
+                        {notification.emailedTo?.length > 0 && (
+                          <span className="inline-flex min-w-0 items-center gap-1">
+                            <Mail01 className="size-3.5 shrink-0" aria-hidden="true" />
+                            <span className="truncate">
+                              Emailed to{' '}
+                              {notification.emailedTo.map((to) => `${to.name} <${to.email}>`).join(', ')}
+                            </span>
+                          </span>
+                        )}
+                      </p>
                     </div>
 
                     <ChevronRight className="mt-1 size-4 shrink-0 text-fg-quaternary" aria-hidden="true" />

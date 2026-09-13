@@ -10,7 +10,9 @@ dist-ssr/
 
 # The requirements document. Left out of a public repository by default;
 # delete this line if you want the PRD published alongside the code.
-Documents/
+# Anchored to the root: unanchored, it also matched client/src/pages/documents
+# on case-insensitive file systems and kept the document screens out of git.
+/Documents/
 
 # Logs
 *.log

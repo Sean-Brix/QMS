@@ -1,10 +1,11 @@
 [
-  { "id": "DEPT-001", "code": "QMS", "name": "Quality Management System", "head": "Maria Santos" },
-  { "id": "DEPT-002", "code": "PRD", "name": "Production", "head": "Ramon Dela Cruz" },
-  { "id": "DEPT-003", "code": "QCT", "name": "Quality Control", "head": "Anna Villanueva" },
-  { "id": "DEPT-004", "code": "ENG", "name": "Engineering", "head": "Paolo Reyes" },
-  { "id": "DEPT-005", "code": "HRD", "name": "Human Resources", "head": "Grace Lim" },
-  { "id": "DEPT-006", "code": "PUR", "name": "Purchasing", "head": "Miguel Torres" },
-  { "id": "DEPT-007", "code": "WHS", "name": "Warehouse", "head": "Jose Aquino" },
-  { "id": "DEPT-008", "code": "MNT", "name": "Maintenance", "head": "Elena Cruz" }
+  {"id": "DEPT-001", "code": "QMS", "name": "Quality Management System", "head": "Maria Santos"},
+  {"id": "DEPT-002", "code": "PRD", "name": "Production", "head": "Ramon Dela Cruz"},
+  {"id": "DEPT-003", "code": "QCT", "name": "Quality Control", "head": "Anna Villanueva"},
+  {"id": "DEPT-004", "code": "ENG", "name": "Engineering", "head": "Paolo Reyes"},
+  {"id": "DEPT-005", "code": "HRD", "name": "Human Resources", "head": "Grace Lim"},
+  {"id": "DEPT-006", "code": "PUR", "name": "Purchasing", "head": "Miguel Torres"},
+  {"id": "DEPT-007", "code": "WHS", "name": "Warehouse", "head": "Jose Aquino"},
+  {"id": "DEPT-008", "code": "MNT", "name": "Maintenance", "head": "Elena Cruz"},
+  {"id": "DEPT-009", "code": "LOG", "name": "Logistics", "head": null}
 ]

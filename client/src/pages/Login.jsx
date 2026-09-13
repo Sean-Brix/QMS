@@ -1,5 +1,6 @@
 /* ============================================================================
-   Login — mock authentication against database/users.json (PRD 6).
+   Login — mock authentication against database/users.json (PRD 6), with the
+   optional Google sign-in a department can link to its shared account (#12).
    ========================================================================== */
 
 import { useState } from 'react'
@@ -10,6 +11,7 @@ import {
   AtSign,
   CheckVerified01,
   ClipboardCheck,
+  CodeBrowser,
   FileCheck02,
   Lock01,
   ShieldTick,
@@ -17,9 +19,9 @@ import {
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { BackgroundPattern } from '@/components/shared-assets/background-patterns'
-import { Badge, Button, Callout, ContentDivider, Input } from '@/components/ui'
+import { Badge, Button, Callout, ContentDivider, GoogleLogo, Input } from '@/components/ui'
 import { APP } from '@/config/appConfig'
-import { identityLabel } from '@/config/constants'
+import { ROLE, identityLabel } from '@/config/constants'
 import { ROUTES } from '@/config/navigation'
 import { useAuth, useData } from '@/context/contexts'
 
@@ -28,6 +30,15 @@ const PROOF_POINTS = [
   { icon: ClipboardCheck, label: 'Corrective actions' },
   { icon: Activity, label: 'Traceable activity' },
 ]
+
+/** One demo account per role, so every view of the prototype is a click away. */
+const DEMO_ACCOUNTS = [
+  { id: 'USR-001', icon: ShieldTick },
+  { id: 'USR-003', icon: ClipboardCheck },
+  { id: 'USR-010', icon: CodeBrowser },
+]
+
+const GoogleIcon = (props) => <GoogleLogo colorful {...props} />
 
 function BrandLockup({ compact = false }) {
   return (
@@ -50,10 +61,12 @@ function BrandLockup({ compact = false }) {
 }
 
 export default function Login() {
-  const { user, login, error, setError } = useAuth()
+  const { user, login, loginWithGoogle, error, setError } = useAuth()
   const { users, deptName } = useData()
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', password: '' })
+  const [googleOpen, setGoogleOpen] = useState(false)
+  const [googleEmail, setGoogleEmail] = useState('')
 
   if (user) return <Navigate to={ROUTES.dashboard} replace />
 
@@ -67,12 +80,21 @@ export default function Login() {
     if (login(form.username, form.password).ok) navigate(ROUTES.dashboard, { replace: true })
   }
 
+  const submitGoogle = () => {
+    if (!googleEmail.trim()) return
+    if (loginWithGoogle(googleEmail).ok) navigate(ROUTES.dashboard, { replace: true })
+  }
+
   const quickFill = (account) => {
     setForm({ username: account.username, password: account.password })
+    setGoogleOpen(false)
     setError('')
   }
 
-  const demoAccounts = [users.find((u) => u.id === 'USR-001'), users.find((u) => u.id === 'USR-003')].filter(Boolean)
+  const demoAccounts = DEMO_ACCOUNTS.map((demo) => ({ ...demo, account: users.find((u) => u.id === demo.id) })).filter(
+    (demo) => demo.account,
+  )
+  const linkedGoogleExample = users.find((u) => u.googleEmail && u.status === 'Active')?.googleEmail
 
   return (
     <main className="relative min-h-dvh overflow-hidden bg-secondary sm:p-3 lg:p-4 xl:p-5">
@@ -154,7 +176,9 @@ export default function Login() {
 
               <div className="mt-5">
                 <h1 className="text-display-xs font-semibold text-primary sm:text-display-sm">Welcome back</h1>
-                <p className="mt-2 text-md text-tertiary">Sign in with your company account to continue.</p>
+                <p className="mt-2 text-md text-tertiary">
+                  Sign in with your QMS Admin or department account.
+                </p>
               </div>
 
               <div className="mt-7 flex flex-col gap-4">
@@ -194,6 +218,61 @@ export default function Login() {
                 Sign in
               </Button>
 
+              {/* ------------------------------------- optional Google sign-in */}
+              {googleOpen ? (
+                <div className="mt-3 flex flex-col gap-3 rounded-xl p-4 ring-1 ring-secondary">
+                  <Input
+                    label="Linked Google address"
+                    type="email"
+                    placeholder="name@gmail.com"
+                    value={googleEmail}
+                    onChange={(value) => {
+                      setGoogleEmail(value)
+                      if (error) setError('')
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key !== 'Enter') return
+                      event.preventDefault()
+                      submitGoogle()
+                    }}
+                    hint={
+                      linkedGoogleExample
+                        ? `Prototype: no Google window opens. Try ${linkedGoogleExample}.`
+                        : 'Prototype: no Google window opens.'
+                    }
+                  />
+                  <div className="flex gap-2">
+                    <Button type="button" color="secondary" size="md" className="flex-1" onClick={() => setGoogleOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      color="primary"
+                      size="md"
+                      className="flex-1"
+                      isDisabled={!googleEmail.trim()}
+                      onClick={submitGoogle}
+                    >
+                      Continue
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  size="xl"
+                  color="secondary"
+                  iconLeading={GoogleIcon}
+                  className="mt-3 w-full"
+                  onClick={() => {
+                    setGoogleOpen(true)
+                    setError('')
+                  }}
+                >
+                  Sign in with Google
+                </Button>
+              )}
+
               <ContentDivider className="my-7">Explore the prototype</ContentDivider>
 
               <div>
@@ -208,9 +287,10 @@ export default function Login() {
                 </div>
 
                 <div className="mt-3 flex flex-col gap-2">
-                  {demoAccounts.map((account) => {
+                  {demoAccounts.map(({ account, icon: AccountIcon }) => {
                     const isSelected = form.username === account.username && form.password === account.password
-                    const AccountIcon = account.id === 'USR-001' ? ShieldTick : ClipboardCheck
+                    const detail =
+                      account.role === ROLE.DEPARTMENT ? deptName(account.departmentId) : account.position
 
                     return (
                       <button
@@ -236,7 +316,7 @@ export default function Login() {
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-semibold text-primary">{account.fullName}</span>
                           <span className="block truncate text-xs text-tertiary">
-                            {account.position} · {identityLabel(account, deptName)}
+                            {detail} · {identityLabel(account)}
                           </span>
                         </span>
                         <ArrowRight

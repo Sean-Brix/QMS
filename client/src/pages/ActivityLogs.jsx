@@ -17,7 +17,7 @@ import {
   PageState,
   PaginationCardMinimal,
 } from '@/components/ui'
-import { ALL, LOG_ALL_ACTIONS, LOG_MODULES, PAGE_SIZE } from '@/config/constants'
+import { ALL, LOG_ALL_ACTIONS, LOG_MODULES, PAGE_SIZE, ROLE } from '@/config/constants'
 import { path } from '@/config/navigation'
 import { useData } from '@/context/contexts'
 import { matchesDateRange, matchesQuery, matchesValue, paginate, withAll } from '@/utils/filters'
@@ -34,7 +34,7 @@ const COLUMNS = [
 ]
 
 export default function ActivityLogs() {
-  const { activityLogs, users, userById, userName, identityFor } = useData()
+  const { activityLogs, users, userById, personnelById, userName, deptName, identityFor } = useData()
 
   const [query, setQuery] = useState('')
   const [actor, setActor] = useState(ALL)
@@ -54,6 +54,7 @@ export default function ActivityLogs() {
             'recordLabel',
             'action',
             (record) => userName(record.userId),
+            (record) => (record.personnelId ? userName(record.personnelId) : null),
           ]) &&
           matchesValue(entry.userId, actor) &&
           matchesValue(entry.action, action) &&
@@ -84,19 +85,27 @@ export default function ActivityLogs() {
   const renderCell = (entry, columnId) => {
     switch (columnId) {
       case 'user': {
+        /* A shared department account records who actually did the work. */
         const actorUser = userById(entry.userId)
+        const performer = entry.personnelId ? personnelById(entry.personnelId) : null
         return (
           <AvatarLabelGroup
             size="sm"
-            src={actorUser?.avatarUrl}
-            initials={initials(actorUser?.fullName || '—')}
-            title={userName(entry.userId)}
-            subtitle={actorUser?.position}
+            src={performer?.avatarUrl || actorUser?.avatarUrl}
+            initials={initials((performer || actorUser)?.fullName || '—')}
+            title={userName(entry.personnelId || entry.userId)}
+            subtitle={performer ? `via ${actorUser?.fullName}` : actorUser?.position}
           />
         )
       }
-      case 'identity':
-        return <span className="block min-w-0">{identityFor(entry.userId)}</span>
+      case 'identity': {
+        const actorUser = userById(entry.userId)
+        return (
+          <span className="block min-w-0">
+            {actorUser?.role === ROLE.DEPARTMENT ? deptName(actorUser.departmentId) : identityFor(actorUser)}
+          </span>
+        )
+      }
       case 'action':
         return (
           <div className="max-w-sm">
@@ -121,6 +130,12 @@ export default function ActivityLogs() {
         if (entry.recordType === 'document')
           return (
             <Link to={path.document(entry.recordId)} className="font-medium text-brand-secondary hover:underline">
+              {entry.recordLabel}
+            </Link>
+          )
+        if (entry.recordType === 'request')
+          return (
+            <Link to={path.request(entry.recordId)} className="font-medium text-brand-secondary hover:underline">
               {entry.recordLabel}
             </Link>
           )

@@ -17,11 +17,17 @@ import DocumentDetail from '@/pages/documents/DocumentDetail'
 import CarRegister from '@/pages/cars/CarRegister'
 import IssueCar from '@/pages/cars/IssueCar'
 import CarDetail from '@/pages/cars/CarDetail'
+import RequestRegister from '@/pages/requests/RequestRegister'
+import NewRequest from '@/pages/requests/NewRequest'
+import RequestDetail from '@/pages/requests/RequestDetail'
 import Notifications from '@/pages/Notifications'
+import Personnel from '@/pages/Personnel'
+import Account from '@/pages/Account'
 import ActivityLogs from '@/pages/ActivityLogs'
 import Reports from '@/pages/Reports'
 import UserManagement from '@/pages/UserManagement'
 import Settings from '@/pages/Settings'
+import SystemMonitor from '@/pages/SystemMonitor'
 
 /** Blocks the whole app until a session exists. */
 function RequireAuth({ children }) {
@@ -29,7 +35,7 @@ function RequireAuth({ children }) {
   return user ? children : <Navigate to={ROUTES.login} replace />
 }
 
-/** Blocks a single route on a permission from the user's role (PRD 6). */
+/** Blocks a single route on a permission from the account's role (PRD 6). */
 function RequirePermission({ permission, children }) {
   const { can } = useAuth()
   if (can(permission)) return children
@@ -38,7 +44,7 @@ function RequirePermission({ permission, children }) {
       <PageState
         icon={Lock01}
         title="You do not have access to this page"
-        text="This area is restricted to the QMS Department. Contact them if you believe you should have access."
+        text="Your account's role does not include this area. Contact a QMS Admin if you believe it should."
         action={
           <Button color="secondary" onClick={() => window.history.back()}>
             Go back
@@ -66,6 +72,25 @@ function AppRoutes() {
         <Route path={ROUTES.documents} element={<DocumentRepository />} />
         <Route path={ROUTES.documentDetail} element={<DocumentDetail />} />
 
+        <Route path={ROUTES.requests} element={<RequestRegister />} />
+        <Route
+          path={ROUTES.requestNew}
+          element={
+            <RequirePermission permission={PERMISSION.DOC_REQUEST_SUBMIT}>
+              <NewRequest />
+            </RequirePermission>
+          }
+        />
+        <Route path={ROUTES.requestDetail} element={<RequestDetail />} />
+        <Route
+          path={ROUTES.requestEdit}
+          element={
+            <RequirePermission permission={PERMISSION.DOC_REQUEST_SUBMIT}>
+              <NewRequest />
+            </RequirePermission>
+          }
+        />
+
         <Route path={ROUTES.cars} element={<CarRegister />} />
         <Route
           path={ROUTES.carIssue}
@@ -78,7 +103,16 @@ function AppRoutes() {
         <Route path={ROUTES.carDetail} element={<CarDetail />} />
 
         <Route path={ROUTES.notifications} element={<Notifications />} />
+        <Route path={ROUTES.account} element={<Account />} />
 
+        <Route
+          path={ROUTES.personnel}
+          element={
+            <RequirePermission permission={PERMISSION.PERSONNEL_VIEW}>
+              <Personnel />
+            </RequirePermission>
+          }
+        />
         <Route
           path={ROUTES.activityLogs}
           element={
@@ -108,6 +142,14 @@ function AppRoutes() {
           element={
             <RequirePermission permission={PERMISSION.SETTINGS_MANAGE}>
               <Settings />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path={ROUTES.systemMonitor}
+          element={
+            <RequirePermission permission={PERMISSION.SYSTEM_MONITOR}>
+              <SystemMonitor />
             </RequirePermission>
           }
         />

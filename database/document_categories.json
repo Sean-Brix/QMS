@@ -1,7 +1,7 @@
 [
-  { "id": "CAT-01", "code": "QM",  "name": "Quality Manual",          "description": "Top-level manual describing the quality management system.", "icon": "book" },
-  { "id": "CAT-02", "code": "DP",  "name": "Departmental Procedures", "description": "Documented procedures owned by each department.",           "icon": "procedure" },
-  { "id": "CAT-03", "code": "DF",  "name": "Departmental Forms",      "description": "Controlled forms and templates used across departments.",   "icon": "form" },
-  { "id": "CAT-04", "code": "POL", "name": "Policies",                "description": "Company-wide policies and statements.",                     "icon": "policy" },
-  { "id": "CAT-05", "code": "EXT", "name": "External Documents",      "description": "Standards, regulations and customer-supplied documents.",   "icon": "external" }
+  { "id": "CAT-01", "code": "QM",  "name": "Quality Manual",          "description": "Top-level manual describing the quality management system.", "icon": "book", "status": "Active" },
+  { "id": "CAT-02", "code": "DP",  "name": "Departmental Procedures", "description": "Documented procedures owned by each department.",           "icon": "procedure", "status": "Active" },
+  { "id": "CAT-03", "code": "DF",  "name": "Departmental Forms",      "description": "Controlled forms and templates used across departments.",   "icon": "form", "status": "Active" },
+  { "id": "CAT-04", "code": "POL", "name": "Policies",                "description": "Company-wide policies and statements.",                     "icon": "policy", "status": "Active" },
+  { "id": "CAT-05", "code": "EXT", "name": "External Documents",      "description": "Standards, regulations and customer-supplied documents.",   "icon": "external", "status": "Active" }
 ]

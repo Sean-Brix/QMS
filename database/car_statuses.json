@@ -1,9 +1,44 @@
 [
-  { "key": "Active",           "order": 1, "tone": "primary", "description": "CAR has been issued and is currently being processed." },
-  { "key": "Pending",          "order": 2, "tone": "neutral", "description": "Awaiting action or response from the concerned user." },
-  { "key": "Under Review",     "order": 3, "tone": "info",    "description": "Corrective action is being reviewed by the QMS Department." },
-  { "key": "For Revision",     "order": 4, "tone": "warning", "description": "Response requires revision or additional information." },
-  { "key": "Overdue",          "order": 5, "tone": "danger",  "description": "Due date has passed without completion." },
-  { "key": "For Verification", "order": 6, "tone": "accent",  "description": "Corrective action submitted and awaiting verification." },
-  { "key": "Closed",           "order": 7, "tone": "success", "description": "Corrective action has been verified and officially closed." }
+  {
+    "key": "Pending",
+    "order": 1,
+    "tone": "blue",
+    "description": "Issued; waiting for the department's root cause analysis and action plan."
+  },
+  {
+    "key": "Under Review",
+    "order": 2,
+    "tone": "indigo",
+    "description": "Response submitted; a QMS Admin is assessing the action plan."
+  },
+  {
+    "key": "For Revision",
+    "order": 3,
+    "tone": "warning",
+    "description": "Response returned to the department for rework, with a new reply due date."
+  },
+  {
+    "key": "Active",
+    "order": 4,
+    "tone": "brand",
+    "description": "Action plan accepted; the department is carrying out the corrective actions."
+  },
+  {
+    "key": "For Verification",
+    "order": 5,
+    "tone": "purple",
+    "description": "Implementation recorded; the countermeasure is verified a day after the target date."
+  },
+  {
+    "key": "For Effectiveness Check",
+    "order": 6,
+    "tone": "sky",
+    "description": "Closed out; effectiveness is checked 6 months later or at the next internal audit."
+  },
+  {
+    "key": "Closed",
+    "order": 7,
+    "tone": "success",
+    "description": "Effective, kept under extended monitoring, or closed and re-issued. Overdue is a flag on any stage, not a status."
+  }
 ]

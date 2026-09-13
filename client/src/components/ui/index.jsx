@@ -24,6 +24,7 @@ import { icon as resolveIcon } from './icons'
 
 /* ------------------------------------------------------- library re-exports */
 export { Button } from '@/components/base/buttons/button'
+export { GoogleLogo } from '@/components/base/buttons/social-logos'
 export { ButtonUtility } from '@/components/base/buttons/button-utility'
 export { CloseButton } from '@/components/base/buttons/close-button'
 export { Badge, BadgeWithDot, BadgeWithIcon, BadgeWithButton } from '@/components/base/badges/badges'

@@ -1,0 +1,310 @@
+[
+  {
+    "id": "REQ-001",
+    "controlNo": "DRCN-26-001",
+    "type": "Revise",
+    "status": "Under Review",
+    "documentId": "DOC-0004",
+    "documentCode": "QMS-OP-003",
+    "title": "Internal Quality Audit Procedure",
+    "currentRevisionNo": "2",
+    "proposedRevisionNo": "3",
+    "pageAffected": "4-7, Annex B",
+    "level": 2,
+    "levelSpecify": null,
+    "processType": "A-Regular",
+    "documentCount": 1,
+    "categoryId": "CAT-02",
+    "departmentId": "DEPT-001",
+    "reason": "Scheduled review. Aligns the audit programme with the 2026 risk register and adds provisions for remote audits.",
+    "originator": {
+      "accountId": "USR-002",
+      "personnelId": "PER-002",
+      "position": "QMS Document Controller"
+    },
+    "reviewer": {
+      "personnelId": "PER-001",
+      "position": "QMS Manager",
+      "date": "2026-08-26"
+    },
+    "proposed": {
+      "retentionPeriod": "5 Years",
+      "description": "Planning, conduct and reporting of internal quality audits."
+    },
+    "fileName": "QMS-OP-003_rev3_draft.docx",
+    "submittedAt": "2026-08-26T10:20:00",
+    "receivedAt": "2026-08-26T10:20:00",
+    "reviewDueDate": "2026-09-02",
+    "reviewedBy": "USR-001",
+    "returned": null,
+    "approval": null,
+    "dcc": null,
+    "cancelled": null,
+    "history": [
+      {
+        "at": "2026-08-26T10:20:00",
+        "action": "Submitted",
+        "by": "USR-002",
+        "personnelId": "PER-002",
+        "notes": ""
+      },
+      {
+        "at": "2026-08-27T08:30:00",
+        "action": "Review started",
+        "by": "USR-001",
+        "personnelId": null,
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "id": "REQ-002",
+    "controlNo": "DRCN-26-002",
+    "type": "New",
+    "status": "Submitted",
+    "documentId": null,
+    "documentCode": "F-PRD-004",
+    "title": "Line Clearance Checklist",
+    "currentRevisionNo": null,
+    "proposedRevisionNo": "0",
+    "pageAffected": "All (new document)",
+    "level": 4,
+    "levelSpecify": null,
+    "processType": "A-Regular",
+    "documentCount": 1,
+    "categoryId": "CAT-03",
+    "departmentId": "DEPT-002",
+    "reason": "Corrective action for KPI-26-002: formalises line clearance before each changeover.",
+    "originator": {
+      "accountId": "USR-003",
+      "personnelId": "PER-005",
+      "position": "Line Leader"
+    },
+    "reviewer": {
+      "personnelId": "PER-004",
+      "position": "Production Supervisor",
+      "date": "2026-08-28"
+    },
+    "proposed": {
+      "retentionPeriod": "3 Years",
+      "description": "Checklist the line leader completes before restarting a line after a changeover."
+    },
+    "fileName": "F-PRD-004_rev0_draft.xlsx",
+    "submittedAt": "2026-08-28T15:05:00",
+    "receivedAt": "2026-08-28T15:05:00",
+    "reviewDueDate": "2026-08-31",
+    "reviewedBy": null,
+    "returned": null,
+    "approval": null,
+    "dcc": null,
+    "cancelled": null,
+    "history": [
+      {
+        "at": "2026-08-28T15:05:00",
+        "action": "Submitted",
+        "by": "USR-003",
+        "personnelId": "PER-005",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "id": "REQ-003",
+    "controlNo": "DRCN-26-003",
+    "type": "Obsolete",
+    "status": "Approved",
+    "documentId": "DOC-0013",
+    "documentCode": "PUR-OP-002",
+    "title": "Supplier Evaluation Procedure",
+    "currentRevisionNo": "2",
+    "proposedRevisionNo": null,
+    "pageAffected": "Whole document",
+    "level": 2,
+    "levelSpecify": null,
+    "processType": "A-Regular",
+    "documentCount": 1,
+    "categoryId": "CAT-02",
+    "departmentId": "DEPT-006",
+    "reason": "Supplier evaluation has moved into the ERP vendor module; the procedure is no longer used.",
+    "originator": {
+      "accountId": "USR-007",
+      "personnelId": "PER-014",
+      "position": "Supplier Quality Specialist"
+    },
+    "reviewer": {
+      "personnelId": "PER-013",
+      "position": "Purchasing Officer",
+      "date": "2026-07-09"
+    },
+    "proposed": null,
+    "fileName": null,
+    "submittedAt": "2026-07-09T11:00:00",
+    "receivedAt": "2026-07-09T11:00:00",
+    "reviewDueDate": "2026-07-16",
+    "reviewedBy": "USR-001",
+    "returned": null,
+    "approval": {
+      "decision": "Approved",
+      "approvedBy": "USR-001",
+      "signatory": "Maria Santos",
+      "position": "QMS Manager",
+      "remarks": "Retain for 5 years per the retention period.",
+      "date": "2026-07-14"
+    },
+    "dcc": {
+      "disposition": "Marked obsolete and archived",
+      "effectiveDate": "2026-07-15"
+    },
+    "cancelled": null,
+    "history": [
+      {
+        "at": "2026-07-09T11:00:00",
+        "action": "Submitted",
+        "by": "USR-007",
+        "personnelId": "PER-014",
+        "notes": ""
+      },
+      {
+        "at": "2026-07-10T09:00:00",
+        "action": "Review started",
+        "by": "USR-001",
+        "personnelId": null,
+        "notes": ""
+      },
+      {
+        "at": "2026-07-14T14:20:00",
+        "action": "Approved",
+        "by": "USR-001",
+        "personnelId": null,
+        "notes": "Retain for 5 years per the retention period."
+      }
+    ]
+  },
+  {
+    "id": "REQ-004",
+    "controlNo": "DRCN-26-004",
+    "type": "Revise",
+    "status": "Under Review",
+    "documentId": "DOC-0006",
+    "documentCode": "F-QCT-002",
+    "title": "Incoming Inspection Report Form",
+    "currentRevisionNo": "2",
+    "proposedRevisionNo": "3",
+    "pageAffected": "Page 1, section B",
+    "level": 4,
+    "levelSpecify": null,
+    "processType": "B-Urgent",
+    "documentCount": 1,
+    "categoryId": "CAT-03",
+    "departmentId": "DEPT-003",
+    "reason": "Adds the lot-traceability field the supplier quality agreement requires. Rejected lots cannot be traced without it (see IQC-26-002).",
+    "originator": {
+      "accountId": "USR-004",
+      "personnelId": "PER-007",
+      "position": "QC Inspector"
+    },
+    "reviewer": {
+      "personnelId": "PER-008",
+      "position": "QC Supervisor",
+      "date": "2026-08-25"
+    },
+    "proposed": {
+      "retentionPeriod": "3 Years",
+      "description": "Records inspection results of incoming raw materials and purchased parts."
+    },
+    "fileName": "F-QCT-002_rev3_draft.xlsx",
+    "submittedAt": "2026-08-25T08:50:00",
+    "receivedAt": "2026-08-25T08:50:00",
+    "reviewDueDate": "2026-08-26",
+    "reviewedBy": "USR-002",
+    "returned": null,
+    "approval": null,
+    "dcc": null,
+    "cancelled": null,
+    "history": [
+      {
+        "at": "2026-08-25T08:50:00",
+        "action": "Submitted",
+        "by": "USR-004",
+        "personnelId": "PER-007",
+        "notes": ""
+      },
+      {
+        "at": "2026-08-25T09:30:00",
+        "action": "Review started",
+        "by": "USR-002",
+        "personnelId": null,
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "id": "REQ-005",
+    "controlNo": "DRCN-26-005",
+    "type": "New",
+    "status": "Returned for Revision",
+    "documentId": null,
+    "documentCode": "ENG-SD-001",
+    "title": "Visual Inspection Aid - Weld Seams",
+    "currentRevisionNo": null,
+    "proposedRevisionNo": "0",
+    "pageAffected": "All (new document)",
+    "level": 3,
+    "levelSpecify": "Visual aid",
+    "processType": "A-Regular",
+    "documentCount": 1,
+    "categoryId": "CAT-02",
+    "departmentId": "DEPT-004",
+    "reason": "Operators need photo references for acceptable weld seams on the X200 frame; rejects are being judged differently between shifts.",
+    "originator": {
+      "accountId": "USR-005",
+      "personnelId": "PER-010",
+      "position": "Process Engineer"
+    },
+    "reviewer": {
+      "personnelId": "PER-009",
+      "position": "Engineering Lead",
+      "date": "2026-08-24"
+    },
+    "proposed": {
+      "retentionPeriod": "3 Years",
+      "description": "Photo guide of acceptable and rejectable weld seams for the X200 frame."
+    },
+    "fileName": "ENG-SD-001_rev0_draft.pdf",
+    "submittedAt": "2026-08-24T13:30:00",
+    "receivedAt": "2026-08-24T13:30:00",
+    "reviewDueDate": "2026-08-25",
+    "reviewedBy": "USR-001",
+    "returned": {
+      "notes": "The accept/reject photos are not tied to a drawing revision. Add the drawing number and revision to each photo and attach the drawing extract.",
+      "by": "USR-001",
+      "at": "2026-08-25T16:10:30"
+    },
+    "approval": null,
+    "dcc": null,
+    "cancelled": null,
+    "history": [
+      {
+        "at": "2026-08-24T13:30:00",
+        "action": "Submitted",
+        "by": "USR-005",
+        "personnelId": "PER-010",
+        "notes": ""
+      },
+      {
+        "at": "2026-08-25T08:45:00",
+        "action": "Review started",
+        "by": "USR-001",
+        "personnelId": null,
+        "notes": ""
+      },
+      {
+        "at": "2026-08-25T16:10:30",
+        "action": "Returned for revision",
+        "by": "USR-001",
+        "personnelId": null,
+        "notes": "The accept/reject photos are not tied to a drawing revision. Add the drawing number and revision to each photo and attach the drawing extract."
+      }
+    ]
+  }
+]

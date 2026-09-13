@@ -97,6 +97,24 @@ input[type="search"]::-webkit-search-cancel-button {
         box-shadow: none !important;
         border: none !important;
     }
+
+    /* A table prints whole rather than clipped inside its scroll container. */
+    .overflow-x-auto {
+        overflow: visible !important;
+    }
+
+    .print-avoid-break {
+        break-inside: avoid;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+}
+
+/* Shown on paper only — a report's title block when printed or saved as PDF. */
+.print-only {
+    display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

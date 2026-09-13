@@ -11,7 +11,8 @@ import { FeaturedIcon } from '@/components/foundations/featured-icon/featured-ic
 import { cx } from '@/utils/cx'
 
 /**
- * @param items `[{ id, actor, actorName, avatarUrl, icon, color, title, description, meta, href }]`
+ * @param items `[{ id, actor, actorName, avatarUrl, icon, color, title, description, meta, action }]`
+ *              — `action` is an optional control shown under the entry;
  *              — `avatarUrl` renders a profile image with `actor` as fallback;
  *              `icon` renders a featured icon instead.
  *              Supply one or the other.
@@ -39,6 +40,7 @@ export function ActivityFeed({ items, className }) {
               <p className="text-sm text-secondary">{item.title}</p>
               {item.description && <p className="mt-0.5 text-sm text-tertiary">{item.description}</p>}
               {item.meta && <p className="mt-1 text-xs text-quaternary">{item.meta}</p>}
+              {item.action && <div className="mt-2">{item.action}</div>}
             </div>
           </li>
         )
