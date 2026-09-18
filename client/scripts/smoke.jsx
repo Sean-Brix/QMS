@@ -28,9 +28,21 @@ globalThis.document = dom.window.document
 Object.defineProperty(globalThis, 'navigator', { value: dom.window.navigator, configurable: true })
 globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 0)
 globalThis.cancelAnimationFrame = clearTimeout
-globalThis.matchMedia =
-  dom.window.matchMedia ||
-  (() => ({ matches: false, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} }))
+/* jsdom has no layout, so `matchMedia` is answered from a pretend viewport
+   width. The responsive table reads `(min-width: …px)` queries to pick its
+   columns and its phone layout; anything else (colour scheme, hover) is false. */
+let viewportWidth = 1440
+globalThis.matchMedia = (query) => {
+  const minWidth = /\(min-width:\s*(\d+)px\)/.exec(query)
+  return {
+    matches: minWidth ? viewportWidth >= Number(minWidth[1]) : false,
+    media: query,
+    addEventListener() {},
+    removeEventListener() {},
+    addListener() {},
+    removeListener() {},
+  }
+}
 dom.window.matchMedia = globalThis.matchMedia
 dom.window.ResizeObserver = class {
   observe() {}
@@ -49,9 +61,12 @@ const { ThemeProvider } = await import('../src/providers/theme-provider.jsx')
 const App = (await import('../src/App.jsx')).default
 const { SESSION_KEY } = await import('../src/config/appConfig.js')
 
-/* Each entry is "<session> <route> [expected text]", where "!text" means the text
+/* Each entry is "<session> <route> [@key=value ...] [expected text]", where "!text" means the text
    must not appear. The session is an account id, or SIGNED_OUT. Covering every role catches screens that only break for a
-   department account or for Dev. */
+   department account or for Dev. An "@key=value" token seeds localStorage before the render — how a
+   remembered preference such as the repository layout is exercised. Storage is cleared between entries.
+   "@viewport=390" sets the pretend viewport width instead (default 1440), which is how the phone and
+   tablet layouts of the tables are rendered. */
 const ROUTES = [
   // QMS Admin
   'USR-001 /dashboard',
@@ -66,6 +81,29 @@ const ROUTES = [
   'USR-001 /notifications HRD-POL-006 is past its review date', // raised by the due-date sweep
   'USR-001 /documents',
   'USR-001 /documents Revision requested', // open request chip in the list
+  'USR-001 /documents uploaded by', // the table row carries the uploader
+  'USR-001 /documents @qms.documents.layout=grid !uploaded by', // grid tiles carry code, title and status only
+  'USR-001 /documents @qms.documents.layout=grid Revision requested',
+  'USR-001 /documents @qms.documents.layout=cards Customer-issued engineering drawings', // cards carry the description
+  'USR-001 /documents @qms.documents.layout=cards uploaded by',
+  'USR-003 /documents @qms.documents.layout=cards !PUR-OP-002', // visibility rules hold in every layout
+  // Phone (stacked rows) and tablet (fewer columns) table layouts
+  'USR-001 /documents @viewport=390 Sort by',
+  'USR-001 /documents @viewport=390 Effective', // heading folded in as a label
+  'USR-001 /documents @viewport=390 Revision requested',
+  'USR-003 /documents @viewport=390 !PUR-OP-002',
+  'USR-001 /documents @viewport=1024 !Category', // shed on a laptop; the tabs carry it
+  'USR-001 /documents @viewport=1600 Category',
+  'USR-001 /cars @viewport=390 Next deadline',
+  'USR-001 /cars?flag=Overdue @viewport=390 IQA-26-002',
+  'USR-001 /requests @viewport=390 DRCN-26-004',
+  'USR-001 /users @viewport=390 Logistics',
+  'USR-001 /personnel @viewport=390 Victor Ramos',
+  'USR-001 /activity-logs @viewport=390 Related record', // the action itself is the lead line, unlabelled
+  'USR-001 /reports @viewport=390 Management Review',
+  'USR-001 /dashboard @viewport=390 CAR monitoring',
+  'USR-003 /dashboard @viewport=390 Awaiting your reply',
+  'USR-010 /system @viewport=390 Activity per day',
   'USR-001 /documents/DOC-0001 Views411Downloads', // PDF file card; the visit is counted once under StrictMode
   'USR-001 /documents/DOC-0001 Restore this revision',
   'USR-001 /documents/DOC-0013 PUR-OP-002', // obsolete, still open to a QMS Admin
@@ -146,11 +184,20 @@ console.error = (...args) => {
 }
 
 for (const entry of ROUTES) {
-  const [session, target, ...expected] = entry.split(' ')
-  const expectText = expected.join(' ')
+  const [session, target, ...rest] = entry.split(' ')
+  const presets = rest.filter((token) => token.startsWith('@'))
+  const expectText = rest.filter((token) => !token.startsWith('@')).join(' ')
 
   if (session === 'SIGNED_OUT') dom.window.sessionStorage.removeItem(SESSION_KEY)
   else dom.window.sessionStorage.setItem(SESSION_KEY, session)
+
+  dom.window.localStorage.clear()
+  viewportWidth = 1440
+  for (const preset of presets) {
+    const [key, value] = preset.slice(1).split('=')
+    if (key === 'viewport') viewportWidth = Number(value)
+    else dom.window.localStorage.setItem(key, value)
+  }
 
   const host = dom.window.document.createElement('div')
   dom.window.document.body.appendChild(host)

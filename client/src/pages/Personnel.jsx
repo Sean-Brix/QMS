@@ -37,7 +37,7 @@ import { isEmail } from '@/utils/validation'
 const COLUMNS = [
   { id: 'person', label: 'Name', isRowHeader: true },
   { id: 'department', label: 'Department' },
-  { id: 'employeeNo', label: 'Employee no.' },
+  { id: 'employeeNo', label: 'Employee no.', hideBelow: 'lg' },
   {
     id: 'cars',
     label: 'Open CARs',

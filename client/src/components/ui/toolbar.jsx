@@ -160,7 +160,18 @@ export function FilterBar({ search, filters = [], dates = [], onReset, active, t
         </div>
       )}
 
-      {trailing && <div className="flex flex-wrap items-center gap-2 md:ml-auto">{trailing}</div>}
+      {/* Sits after the filters when there are any; otherwise takes the right edge itself.
+          Two `ml-auto` siblings would split the free space and open a gap between them. */}
+      {trailing && (
+        <div
+          className={cx(
+            'flex flex-wrap items-center gap-2',
+            filters.length === 0 && dates.length === 0 && 'md:ml-auto',
+          )}
+        >
+          {trailing}
+        </div>
+      )}
     </div>
   )
 }

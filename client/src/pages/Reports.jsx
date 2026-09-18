@@ -64,11 +64,11 @@ import { buildWorkbook, downloadBlob } from '@/utils/xlsx'
 
 const DETAIL_COLUMNS = [
   { id: 'date', label: 'Date', isRowHeader: true },
-  { id: 'time', label: 'Time' },
+  { id: 'time', label: 'Time', hideBelow: 'lg' },
   { id: 'user', label: 'User' },
-  { id: 'action', label: 'Action' },
-  { id: 'record', label: 'Related record' },
-  { id: 'details', label: 'Details' },
+  { id: 'action', label: 'Action', stackRole: 'lead' },
+  { id: 'record', label: 'Related record', hideBelow: 'xl' },
+  { id: 'details', label: 'Details', stackFull: true },
 ]
 
 /* History steps on a document request, counted per type for the period. */

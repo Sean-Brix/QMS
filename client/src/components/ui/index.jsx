@@ -14,6 +14,7 @@
    ========================================================================== */
 
 import { Badge, BadgeWithDot } from '@/components/base/badges/badges'
+import { ButtonGroup, ButtonGroupItem } from '@/components/base/button-group/button-group'
 import { FeaturedIcon } from '@/components/foundations/featured-icon/featured-icon'
 import { cx } from '@/utils/cx'
 import { HintText as HintTextBase } from '@/components/base/input/hint-text'
@@ -27,6 +28,7 @@ export { Button } from '@/components/base/buttons/button'
 export { GoogleLogo } from '@/components/base/buttons/social-logos'
 export { ButtonUtility } from '@/components/base/buttons/button-utility'
 export { CloseButton } from '@/components/base/buttons/close-button'
+export { ButtonGroup, ButtonGroupItem } from '@/components/base/button-group/button-group'
 export { Badge, BadgeWithDot, BadgeWithIcon, BadgeWithButton } from '@/components/base/badges/badges'
 export { Avatar } from '@/components/base/avatar/avatar'
 export { AvatarLabelGroup } from '@/components/base/avatar/avatar-label-group'
@@ -61,7 +63,7 @@ export { FileTypeIcon } from './file-type-icon'
 export { FilterBar, FilterDate, FilterDateRange, FilterSelect, SearchField } from './toolbar'
 export { CategoryBarChart, TrendAreaChart } from './charts'
 export { ActivityFeed } from './feed'
-export { CellStack, DataTable } from './data-table'
+export { CellStack, DataTable, FLUID_COLUMN } from './data-table'
 export { AppDialog, FormGrid, FormSpan } from './dialog'
 
 /* --------------------------------------------------------------------- Icon
@@ -331,4 +333,31 @@ export function ChoiceRow({ label, hint, options, value, onChange, isDisabled, i
    A row of buttons, used by page headers and card footers. */
 export function Actions({ children, className }) {
   return <div className={cx('flex flex-wrap items-center gap-2', className)}>{children}</div>
+}
+
+/* ------------------------------------------------------------- LayoutToggle
+   The list / grid / cards switch that sits at the end of a filter band. One
+   icon per layout, built on the library's accessible toggle-button group so
+   the choice is a radio-style selection rather than three unrelated buttons.
+
+   Options: `[{ id, label, icon }]`. `label` is the tooltip and the accessible
+   name — the buttons themselves show only the icon. */
+export function LayoutToggle({ value, onChange, options, size = 'sm', className, ariaLabel = 'Layout' }) {
+  return (
+    <ButtonGroup
+      size={size}
+      aria-label={ariaLabel}
+      selectedKeys={[value]}
+      disallowEmptySelection
+      onSelectionChange={(keys) => {
+        const [next] = [...keys]
+        if (next && next !== value) onChange(next)
+      }}
+      className={className}
+    >
+      {options.map(({ id, label, icon }) => (
+        <ButtonGroupItem key={id} id={id} iconLeading={icon} aria-label={label} title={label} />
+      ))}
+    </ButtonGroup>
+  )
 }

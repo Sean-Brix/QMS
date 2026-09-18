@@ -57,8 +57,8 @@ const COLUMNS = [
   { id: 'account', label: 'Account', isRowHeader: true },
   { id: 'role', label: 'Role' },
   { id: 'department', label: 'Department' },
-  { id: 'signIn', label: 'Sign-in' },
-  { id: 'lastLogin', label: 'Last sign-in' },
+  { id: 'signIn', label: 'Sign-in', hideBelow: 'lg' },
+  { id: 'lastLogin', label: 'Last sign-in', hideBelow: 'xl' },
   { id: 'status', label: 'Status' },
   { id: 'actions', label: '', align: 'right' },
 ]

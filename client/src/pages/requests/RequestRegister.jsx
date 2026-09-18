@@ -18,6 +18,7 @@ import {
   Button,
   CellStack,
   DataTable,
+  FLUID_COLUMN,
   FilterBar,
   MetricCard,
   PageState,
@@ -51,11 +52,11 @@ const OPEN = 'Open'
 
 const COLUMNS = [
   { id: 'controlNo', label: 'DRCN No.', allowsSorting: true, isRowHeader: true },
-  { id: 'document', label: 'Document', className: 'min-w-56' },
+  { id: 'document', label: 'Document', className: FLUID_COLUMN },
   { id: 'type', label: 'Type' },
-  { id: 'level', label: 'Level', allowsSorting: true },
-  { id: 'originator', label: 'Originator' },
-  { id: 'submittedAt', label: 'Submitted', allowsSorting: true },
+  { id: 'level', label: 'Level', allowsSorting: true, hideBelow: 'lg' },
+  { id: 'originator', label: 'Originator', hideBelow: 'xl' },
+  { id: 'submittedAt', label: 'Submitted', allowsSorting: true, hideBelow: 'lg' },
   { id: 'reviewDueDate', label: 'Decision due', allowsSorting: true },
   { id: 'status', label: 'Status', allowsSorting: true },
 ]

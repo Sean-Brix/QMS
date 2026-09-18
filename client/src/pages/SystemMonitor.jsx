@@ -122,7 +122,7 @@ export default function SystemMonitor() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="overflow-hidden rounded-xl bg-primary shadow-xs ring-1 ring-secondary xl:col-span-2">
-          <DataTable ariaLabel="Data tables" columns={TABLE_COLUMNS} rows={tables} renderCell={renderTableCell} />
+          <DataTable ariaLabel="Data tables" columns={TABLE_COLUMNS} rows={tables} renderCell={renderTableCell} stackBelow="sm" />
         </div>
 
         <Card title="Environment">

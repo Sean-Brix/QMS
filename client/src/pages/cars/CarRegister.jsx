@@ -15,6 +15,7 @@ import {
   Badge,
   Button,
   DataTable,
+  FLUID_COLUMN,
   FilterBar,
   MetricCard,
   PageState,
@@ -40,16 +41,19 @@ import { useAuth, useData } from '@/context/contexts'
 import { countBy, matchesDateRange, matchesQuery, matchesValue, paginate, sortBy, withAll } from '@/utils/filters'
 import { TODAY, daysBetween, formatDate } from '@/utils/format'
 
+/* `hideBelow` keeps CAR number, finding, department, next deadline and status
+   on a tablet; the rest return on wider screens, in the phone layout and on
+   the CAR itself. */
 const COLUMNS = [
   { id: 'carNo', label: 'CAR No.', allowsSorting: true, isRowHeader: true },
-  { id: 'finding', label: 'Finding', className: 'min-w-56' },
-  { id: 'source', label: 'Source' },
-  { id: 'ncType', label: 'Class' },
+  { id: 'finding', label: 'Finding', className: FLUID_COLUMN },
+  { id: 'source', label: 'Source', hideBelow: 'xl' },
+  { id: 'ncType', label: 'Class', hideBelow: 'xl' },
   { id: 'department', label: 'Concerned dept.', allowsSorting: true },
-  { id: 'responsible', label: 'Responsible' },
-  { id: 'dateIssued', label: 'Issued', allowsSorting: true },
+  { id: 'responsible', label: 'Responsible', hideBelow: '2xl' },
+  { id: 'dateIssued', label: 'Issued', allowsSorting: true, hideBelow: 'lg' },
   { id: 'deadline', label: 'Next deadline', allowsSorting: true },
-  { id: 'closeOut', label: 'Close-out', allowsSorting: true },
+  { id: 'closeOut', label: 'Close-out', allowsSorting: true, hideBelow: 'lg' },
   { id: 'status', label: 'Status', allowsSorting: true },
 ]
 
@@ -161,7 +165,7 @@ export default function CarRegister() {
         return <span className="font-mono font-semibold whitespace-nowrap text-primary">{car.carNo}</span>
       case 'finding':
         return (
-          <div className="max-w-xs">
+          <div className="min-w-0">
             <p className="line-clamp-2 font-medium text-primary">{car.finding.deviation}</p>
             <p className="line-clamp-1 text-sm text-tertiary">{car.finding.isoClause}</p>
           </div>

@@ -248,6 +248,7 @@ function MonitoringCard({ cars, allCars, className }) {
           rows={list.slice(0, MONITOR_LIMIT)}
           renderCell={renderCell}
           getHref={(row) => path.car(row.car.id)}
+          stackBelow="sm"
         />
       )}
     </Card>

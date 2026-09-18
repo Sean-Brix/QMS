@@ -25,12 +25,12 @@ import { formatDate, formatTime, initials } from '@/utils/format'
 
 const COLUMNS = [
   { id: 'user', label: 'User', isRowHeader: true },
-  { id: 'identity', label: 'Department / Role' },
-  { id: 'action', label: 'Action performed' },
-  { id: 'module', label: 'Module' },
+  { id: 'identity', label: 'Department / Role', hideBelow: 'xl' },
+  { id: 'action', label: 'Action performed', stackRole: 'lead' },
+  { id: 'module', label: 'Module', hideBelow: 'xl' },
   { id: 'record', label: 'Related record' },
   { id: 'date', label: 'Date' },
-  { id: 'time', label: 'Time' },
+  { id: 'time', label: 'Time', hideBelow: 'lg' },
 ]
 
 export default function ActivityLogs() {

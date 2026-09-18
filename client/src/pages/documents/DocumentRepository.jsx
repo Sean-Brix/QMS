@@ -3,9 +3,9 @@
    Upload / revise / delete are gated to the QMS Department (PRD 8.4).
    ========================================================================== */
 
-import { useMemo, useState } from 'react'
-import { Download01, Eye, FilePlus02, Folder } from '@untitledui/icons'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Download01, Eye, FilePlus02, Folder, Grid01, LayoutGrid01, List } from '@untitledui/icons'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Page, PageHeader } from '@/components/layout/PageHeader'
 import {
@@ -14,14 +14,18 @@ import {
   ButtonUtility,
   CellStack,
   DataTable,
+  FLUID_COLUMN,
   FilterBar,
   FileTypeIcon,
+  LayoutToggle,
+  NativeSelect,
   PageState,
   PaginationCardMinimal,
   StatusBadge,
   Tab,
   TabList,
   Tabs,
+  cx,
 } from '@/components/ui'
 import { ALL, DOC_STATUS_LIST, ORG_WIDE_ROLES, PAGE_SIZE, PERMISSION, REQUEST_TYPE } from '@/config/constants'
 import { ROUTES, path } from '@/config/navigation'
@@ -29,24 +33,68 @@ import { useAuth, useData } from '@/context/contexts'
 import { matchesDateRange, matchesQuery, matchesValue, paginate, sortBy, withAll } from '@/utils/filters'
 import { formatDate } from '@/utils/format'
 
+/* `hideBelow` sheds the columns a reader needs least as the table narrows:
+   category (the tabs above already say it), level and review date go first,
+   then department and revision, leaving code, title, effective date and status
+   on a tablet. All of them come back in the phone layout and on the record. */
 const COLUMNS = [
   { id: 'code', label: 'Document code', allowsSorting: true, isRowHeader: true },
-  { id: 'title', label: 'Title', allowsSorting: true },
-  { id: 'category', label: 'Category' },
-  { id: 'department', label: 'Department' },
-  { id: 'level', label: 'Level', allowsSorting: true },
+  { id: 'title', label: 'Title', allowsSorting: true, className: FLUID_COLUMN },
+  { id: 'category', label: 'Category', hideBelow: 'xl' },
+  { id: 'department', label: 'Department', hideBelow: 'lg' },
+  { id: 'level', label: 'Level', allowsSorting: true, hideBelow: 'xl' },
   {
     id: 'revisionNo',
     label: 'Revision',
     allowsSorting: true,
+    hideBelow: 'lg',
     tooltip:
       'Internal documents are numbered 01, 02, 03… An external document keeps the revision its own issuer gave it — a drawing letter such as B, or a standard’s edition year such as 2015.',
   },
   { id: 'effectiveDate', label: 'Effective', allowsSorting: true },
-  { id: 'reviewDate', label: 'Review', allowsSorting: true },
+  { id: 'reviewDate', label: 'Review', allowsSorting: true, hideBelow: 'xl' },
   { id: 'status', label: 'Status' },
   { id: 'actions', label: '', align: 'right' },
 ]
+
+/* ---------------------------------------------------------------- layouts
+   The register can be read three ways: the full table, a dense grid of
+   tiles for scanning a category by eye, or cards that carry the description
+   and metadata without opening each document. The choice is remembered per
+   browser, like the theme. */
+const LAYOUT = { LIST: 'list', GRID: 'grid', CARDS: 'cards' }
+const LAYOUT_OPTIONS = [
+  { id: LAYOUT.LIST, label: 'List', icon: List },
+  { id: LAYOUT.GRID, label: 'Grid', icon: Grid01 },
+  { id: LAYOUT.CARDS, label: 'Cards', icon: LayoutGrid01 },
+]
+const LAYOUT_STORAGE_KEY = 'qms.documents.layout'
+
+const readStoredLayout = () => {
+  try {
+    const stored = localStorage.getItem(LAYOUT_STORAGE_KEY)
+    return Object.values(LAYOUT).includes(stored) ? stored : LAYOUT.LIST
+  } catch {
+    return LAYOUT.LIST
+  }
+}
+
+/* The table sorts by clicking a heading. Grid and cards have no headings, so
+   they get the same sortable fields as a select — one entry per direction. */
+const SORT_OPTIONS = [
+  { key: 'code', dir: 'asc', label: 'Document code (A–Z)' },
+  { key: 'code', dir: 'desc', label: 'Document code (Z–A)' },
+  { key: 'title', dir: 'asc', label: 'Title (A–Z)' },
+  { key: 'title', dir: 'desc', label: 'Title (Z–A)' },
+  { key: 'level', dir: 'asc', label: 'Level (1 first)' },
+  { key: 'level', dir: 'desc', label: 'Level (highest first)' },
+  { key: 'revisionNo', dir: 'asc', label: 'Revision (lowest first)' },
+  { key: 'revisionNo', dir: 'desc', label: 'Revision (highest first)' },
+  { key: 'effectiveDate', dir: 'desc', label: 'Effective (newest first)' },
+  { key: 'effectiveDate', dir: 'asc', label: 'Effective (oldest first)' },
+  { key: 'reviewDate', dir: 'asc', label: 'Review (soonest first)' },
+  { key: 'reviewDate', dir: 'desc', label: 'Review (latest first)' },
+].map((option) => ({ ...option, value: `${option.key}:${option.dir}` }))
 
 export default function DocumentRepository() {
   const { user, can } = useAuth()
@@ -75,7 +123,17 @@ export default function DocumentRepository() {
   const [sort, setSort] = useState({ key: 'code', dir: 'asc' })
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(PAGE_SIZE)
+  const [layout, setLayout] = useState(readStoredLayout)
   const canRequest = can(PERMISSION.DOC_REQUEST_SUBMIT)
+  const canDownload = can(PERMISSION.DOCUMENT_DOWNLOAD)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LAYOUT_STORAGE_KEY, layout)
+    } catch {
+      /* storage unavailable — the choice simply does not persist */
+    }
+  }, [layout])
 
   const filtered = useMemo(() => {
     const rows = documents.filter(
@@ -111,6 +169,48 @@ export default function DocumentRepository() {
     setPage(1)
   }
 
+  const onSortChange = (next) => {
+    setSort(next)
+    setPage(1)
+  }
+
+  /* The status chip plus the "revision / obsoletion requested" flag — shown
+     the same way in every layout. */
+  const renderStatus = (doc, className) => {
+    const pending = openRequestForDocument(doc.id)
+    return (
+      <div className={cx('flex flex-col items-start gap-1', className)}>
+        <StatusBadge status={doc.status} />
+        {pending && (
+          <Badge size="sm" color="brand" type="pill-color" className="whitespace-nowrap">
+            {pending.type === REQUEST_TYPE.OBSOLETE ? 'Obsoletion requested' : 'Revision requested'}
+          </Badge>
+        )}
+      </div>
+    )
+  }
+
+  const renderActions = (doc) => (
+    <div className="flex items-center justify-end gap-1">
+      <ButtonUtility
+        size="xs"
+        color="tertiary"
+        tooltip="View"
+        icon={Eye}
+        onClick={() => navigate(path.document(doc.id))}
+      />
+      {canDownload && (
+        <ButtonUtility
+          size="xs"
+          color="tertiary"
+          tooltip="Download"
+          icon={Download01}
+          onClick={() => navigate(`${path.document(doc.id)}?action=download`)}
+        />
+      )}
+    </div>
+  )
+
   const renderCell = (doc, columnId) => {
     switch (columnId) {
       case 'code':
@@ -141,44 +241,80 @@ export default function DocumentRepository() {
         return <span className="whitespace-nowrap">{formatDate(doc.reviewDate)}</span>
       case 'level':
         return <span className="whitespace-nowrap">Level {doc.level}</span>
-      case 'status': {
-        const pending = openRequestForDocument(doc.id)
-        return (
-          <div className="flex flex-col items-start gap-1">
-            <StatusBadge status={doc.status} />
-            {pending && (
-              <Badge size="sm" color="brand" type="pill-color" className="whitespace-nowrap">
-                {pending.type === REQUEST_TYPE.OBSOLETE ? 'Obsoletion requested' : 'Revision requested'}
-              </Badge>
-            )}
-          </div>
-        )
-      }
+      case 'status':
+        return renderStatus(doc)
       case 'actions':
-        return (
-          <div className="flex items-center justify-end gap-1">
-            <ButtonUtility
-              size="xs"
-              color="tertiary"
-              tooltip="View"
-              icon={Eye}
-              onClick={() => navigate(path.document(doc.id))}
-            />
-            {can(PERMISSION.DOCUMENT_DOWNLOAD) && (
-              <ButtonUtility
-                size="xs"
-                color="tertiary"
-                tooltip="Download"
-                icon={Download01}
-                onClick={() => navigate(`${path.document(doc.id)}?action=download`)}
-              />
-            )}
-          </div>
-        )
+        return renderActions(doc)
       default:
         return null
     }
   }
+
+  /* ------------------------------------------------------------- grid tile
+     Enough to recognise a document — file icon, code, title, status — and the
+     whole tile opens it. Actions live on the detail page. */
+  const renderTile = (doc) => (
+    <li key={doc.id}>
+      <Link
+        to={path.document(doc.id)}
+        className="flex h-full flex-col items-center gap-2 rounded-xl p-4 text-center ring-1 ring-secondary transition duration-100 ease-linear outline-brand hover:bg-primary_hover focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        <FileTypeIcon fileName={doc.fileName} fileType={doc.fileType} size={48} />
+        <span className="font-mono text-xs text-tertiary">{doc.code}</span>
+        <span className="line-clamp-2 text-sm font-medium text-primary">{doc.title}</span>
+        <span className="mt-auto pt-1">{renderStatus(doc, 'items-center')}</span>
+      </Link>
+    </li>
+  )
+
+  /* ------------------------------------------------------------------ card
+     The row's contents laid out as a panel, with the description the table
+     has no room for. The title is the link; the footer keeps the row actions. */
+  const renderCard = (doc) => (
+    <li
+      key={doc.id}
+      className="flex flex-col gap-3 rounded-xl p-4 ring-1 ring-secondary transition duration-100 ease-linear hover:bg-primary_hover"
+    >
+      <div className="flex items-start gap-3">
+        <FileTypeIcon fileName={doc.fileName} fileType={doc.fileType} size={40} />
+        <div className="min-w-0 flex-1">
+          <span className="block font-mono text-xs text-tertiary">{doc.code}</span>
+          <Link
+            to={path.document(doc.id)}
+            className="line-clamp-2 text-sm font-semibold text-primary outline-brand hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            {doc.title}
+          </Link>
+        </div>
+        {renderStatus(doc, 'shrink-0 items-end')}
+      </div>
+
+      {doc.description && <p className="line-clamp-2 text-sm text-tertiary">{doc.description}</p>}
+
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+        {[
+          ['Category', categoryName(doc.categoryId)],
+          ['Department', deptName(doc.departmentId)],
+          ['Level', `Level ${doc.level}`],
+          ['Revision', doc.revisionNo],
+          ['Effective', formatDate(doc.effectiveDate)],
+          ['Review', formatDate(doc.reviewDate)],
+        ].map(([k, v]) => (
+          <div key={k} className="min-w-0">
+            <dt className="text-quaternary">{k}</dt>
+            <dd className={cx('truncate font-medium text-secondary', k === 'Revision' && 'font-mono')}>{v}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="mt-auto flex items-center justify-between gap-3 border-t border-secondary pt-3">
+        <span className="truncate text-xs text-tertiary">
+          {doc.fileType} · {doc.fileSize} · uploaded by {userName(doc.uploadedBy)}
+        </span>
+        {renderActions(doc)}
+      </div>
+    </li>
+  )
 
   return (
     <Page>
@@ -266,6 +402,24 @@ export default function DocumentRepository() {
           ]}
           active={Boolean(hasFilters)}
           onReset={resetFilters}
+          trailing={
+            <>
+              {layout !== LAYOUT.LIST && (
+                <NativeSelect
+                  aria-label="Sort by"
+                  size="sm"
+                  value={`${sort.key}:${sort.dir}`}
+                  onChange={(event) => {
+                    const [key, dir] = event.target.value.split(':')
+                    onSortChange({ key, dir })
+                  }}
+                  className="w-full sm:w-auto sm:min-w-44 sm:max-w-56"
+                  options={SORT_OPTIONS.map(({ value, label }) => ({ value, label }))}
+                />
+              )}
+              <LayoutToggle value={layout} onChange={setLayout} options={LAYOUT_OPTIONS} />
+            </>
+          }
         />
 
         {hasFilters && (
@@ -287,18 +441,35 @@ export default function DocumentRepository() {
           />
         ) : (
           <>
-            <DataTable
-              ariaLabel="Controlled documents"
-              columns={COLUMNS}
-              rows={view.rows}
-              renderCell={renderCell}
-              getHref={(doc) => path.document(doc.id)}
-              sort={sort}
-              onSortChange={(next) => {
-                setSort(next)
-                setPage(1)
-              }}
-            />
+            {layout === LAYOUT.LIST && (
+              <DataTable
+                ariaLabel="Controlled documents"
+                columns={COLUMNS}
+                rows={view.rows}
+                renderCell={renderCell}
+                getHref={(doc) => path.document(doc.id)}
+                sort={sort}
+                onSortChange={onSortChange}
+              />
+            )}
+
+            {layout === LAYOUT.GRID && (
+              <ul
+                aria-label="Controlled documents"
+                className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3 md:p-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+              >
+                {view.rows.map(renderTile)}
+              </ul>
+            )}
+
+            {layout === LAYOUT.CARDS && (
+              <ul
+                aria-label="Controlled documents"
+                className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 md:p-5 xl:grid-cols-3"
+              >
+                {view.rows.map(renderCard)}
+              </ul>
+            )}
 
             <PaginationCardMinimal
               page={view.page}
