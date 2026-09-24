@@ -134,7 +134,11 @@ const ROUTES = [
   'USR-001 /requests/REQ-001 Approve and publish', // raised by another QMS Admin
   'USR-002 /requests/REQ-001 Another QMS Admin', // raised by this QMS Admin
   'USR-001 /requests/REQ-002 Start review',
+  'USR-001 /requests/REQ-001 QMS-OP-003_rev0.pdf', // every earlier version is listed
+  'USR-001 /requests/REQ-001 View version',
+  'USR-001 /requests/REQ-002 will be its first', // a new document has only the proposed version
   'USR-001 /requests/REQ-003 Marked obsolete and archived',
+  'USR-001 /requests/REQ-003 PUR-OP-002_rev1.pdf',
   'USR-001 /requests/REQ-004 Past the maximum review time',
   'USR-001 /notifications',
   'USR-001 /personnel Victor Ramos',

@@ -5,14 +5,18 @@
    QMS Admin  : starts the review, returns it, disapproves it, or approves it —
                 approval publishes the change to the repository
    A QMS Admin never decides a request their own account raised.
+   Every version of the document is listed, with the one this request proposes
+   on top, and any of them can be opened for a closer look.
    ========================================================================== */
 
 import { useState } from 'react'
 import {
   AlertTriangle,
   ArrowLeft,
+  ArrowRight,
   Check,
   CheckCircle,
+  Clock,
   Edit03,
   Eye,
   FileCheck02,
@@ -53,6 +57,7 @@ import { DOCUMENT_RULES } from '@/config/appConfig'
 import {
   ACCOUNT_STATUS,
   DOC_LEVELS,
+  DOC_STATUS,
   NOTIFICATION_TYPE,
   PERMISSION,
   PROCESS_TYPE,
@@ -97,6 +102,9 @@ export default function RequestDetail() {
     requestForUser,
     documents,
     documentRevisions,
+    documentRequests,
+    revisionsForDocument,
+    revisionsForUser,
     documentForUser,
     documentCategories,
     departments,
@@ -116,6 +124,7 @@ export default function RequestDetail() {
   const [notes, setNotes] = useState('')
   const [approval, setApproval] = useState(null)
   const [approvalErrors, setApprovalErrors] = useState({})
+  const [viewingId, setViewingId] = useState(null)
 
   if (!request) {
     return (
@@ -349,6 +358,88 @@ export default function RequestDetail() {
     navigate(`${ROUTES.carIssue}?${query}`)
   }
 
+  /* ------------------------------------------------------------ versions */
+
+  /* Departments see the ACTIVE revision only; QMS Admins and Dev see every one. */
+  const allRevisions = request.documentId ? revisionsForDocument(request.documentId) : []
+  const revisions = request.documentId ? revisionsForUser(user, request.documentId) : []
+  const earlierHidden = allRevisions.length > revisions.length
+  /* Until it is approved, the version this request would release sits on top as a proposal. */
+  const proposed =
+    !isObsolete && !allRevisions.some((revision) => revision.requestId === request.id)
+      ? {
+          id: 'proposed',
+          proposed: true,
+          revisionNo: request.proposedRevisionNo,
+          effectiveDate: null,
+          revisedBy: request.originator.accountId,
+          revisionDate: request.submittedAt,
+          changeSummary: request.reason,
+          fileName: request.fileName,
+          restoredFrom: request.restoresRevisionId || null,
+        }
+      : null
+  const versions = proposed ? [proposed, ...revisions] : revisions
+  const viewingIndex = versions.findIndex((version) => version.id === viewingId)
+  const viewing = viewingIndex >= 0 ? versions[viewingIndex] : null
+  const requestById = (requestId) => documentRequests.find((item) => item.id === requestId) || null
+  const revisionById = (revisionId) => documentRevisions.find((item) => item.id === revisionId) || null
+
+  const versionBadges = (version) => (
+    <>
+      {version.proposed ? (
+        <StatusBadge
+          status={request.status}
+          label={REQUEST_OPEN_STATUSES.includes(request.status) ? 'Proposed' : 'Not released'}
+        />
+      ) : (
+        <StatusBadge status={version.status} />
+      )}
+      {(version.proposed || version.requestId === request.id) && (
+        <Badge size="sm" color="brand">
+          This request
+        </Badge>
+      )}
+      {!version.proposed && version.id === request.restoresRevisionId && (
+        <Badge size="sm" color="blue">
+          Being restored
+        </Badge>
+      )}
+    </>
+  )
+
+  const versionItems = versions.map((version) => {
+    const restoredFrom = version.restoredFrom ? revisionById(version.restoredFrom) : null
+    const viaRequest = version.requestId && version.requestId !== request.id ? requestById(version.requestId) : null
+    return {
+      id: version.id,
+      icon: version.proposed ? Edit03 : RefreshCcw01,
+      color: version.proposed ? 'brand' : version.status === DOC_STATUS.ACTIVE ? 'success' : 'gray',
+      title: (
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold text-primary">Revision {version.revisionNo}</span>
+          <span>{version.effectiveDate ? `effective ${formatDate(version.effectiveDate)}` : 'not yet effective'}</span>
+          {versionBadges(version)}
+        </span>
+      ),
+      description: version.changeSummary,
+      meta: [
+        userName(version.revisedBy),
+        formatDateTime(version.revisionDate),
+        version.fileName,
+        viaRequest?.controlNo,
+        restoredFrom && `restores revision ${restoredFrom.revisionNo}`,
+      ]
+        .filter(Boolean)
+        .join(' · '),
+      action: (
+        <Button color="link-color" size="sm" iconLeading={Eye} onClick={() => setViewingId(version.id)}>
+          View version
+        </Button>
+      ),
+    }
+  })
+
   const historyItems = [...(request.history || [])].reverse().map((entry, position) => {
     const meta = HISTORY[entry.action] || { icon: InfoCircle, color: 'gray', phrase: entry.action.toLowerCase() }
     return {
@@ -504,118 +595,138 @@ export default function RequestDetail() {
       )}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card className="xl:col-span-2" bodyClassName="flex flex-col gap-8 py-6">
-          <Section title="Notice">
-            <KeyValue
-              items={[
-                { k: 'DRCN control no.', v: request.controlNo, mono: true },
-                { k: 'Date issued', v: formatDate(request.submittedAt) },
-                { k: 'This notice is given for', v: request.type },
-                { k: 'Process type', v: request.processType },
-                { k: 'Maximum review time', v: rule ? `${limitText(rule)} — ${rule.condition}` : null },
-              ]}
-            />
-          </Section>
+        <div className="flex flex-col gap-4 xl:col-span-2">
+          <Card bodyClassName="flex flex-col gap-8 py-6">
+            <Section title="Notice">
+              <KeyValue
+                items={[
+                  { k: 'DRCN control no.', v: request.controlNo, mono: true },
+                  { k: 'Date issued', v: formatDate(request.submittedAt) },
+                  { k: 'This notice is given for', v: request.type },
+                  { k: 'Process type', v: request.processType },
+                  { k: 'Maximum review time', v: rule ? `${limitText(rule)} — ${rule.condition}` : null },
+                ]}
+              />
+            </Section>
 
-          <Section title="Document">
-            <KeyValue
-              items={[
-                { k: 'Document title', v: request.title },
-                {
-                  k: 'Document no.',
-                  v: linkedDocument ? (
-                    <Link to={path.document(linkedDocument.id)} className="font-mono text-brand-secondary hover:underline">
-                      {request.documentCode}
-                    </Link>
-                  ) : (
-                    <span className="font-mono">{request.documentCode}</span>
-                  ),
-                },
-                {
-                  k: 'Revision no.',
-                  v: isObsolete
-                    ? request.currentRevisionNo
-                    : isNew
-                      ? request.proposedRevisionNo
-                      : `${request.currentRevisionNo} → ${request.proposedRevisionNo}`,
-                },
-                { k: 'Page affected', v: request.pageAffected },
-                ...(restoredRevision
-                  ? [{ k: 'Restores', v: `Revision ${restoredRevision.revisionNo} — ${restoredRevision.fileName}` }]
-                  : []),
-                {
-                  k: 'Document level',
-                  v: `${docLevelLabel(request.level)}${request.levelSpecify ? ` (${request.levelSpecify})` : ''}`,
-                },
-                { k: 'Category', v: categoryName(request.categoryId) },
-                { k: 'Department / Section', v: deptName(request.departmentId) },
-                ...(request.proposed ? [{ k: 'Retention period', v: request.proposed.retentionPeriod }] : []),
-                ...(request.fileName
-                  ? [
-                      {
-                        k: 'Draft file',
-                        v: (
-                          <span className="inline-flex min-w-0 items-center gap-2">
-                            <FileTypeIcon fileName={request.fileName} size={24} />
-                            <span className="truncate">{request.fileName}</span>
-                          </span>
-                        ),
-                      },
-                    ]
-                  : []),
-              ]}
-            />
-          </Section>
+            <Section title="Document">
+              <KeyValue
+                items={[
+                  { k: 'Document title', v: request.title },
+                  {
+                    k: 'Document no.',
+                    v: linkedDocument ? (
+                      <Link to={path.document(linkedDocument.id)} className="font-mono text-brand-secondary hover:underline">
+                        {request.documentCode}
+                      </Link>
+                    ) : (
+                      <span className="font-mono">{request.documentCode}</span>
+                    ),
+                  },
+                  {
+                    k: 'Revision no.',
+                    v: isObsolete
+                      ? request.currentRevisionNo
+                      : isNew
+                        ? request.proposedRevisionNo
+                        : `${request.currentRevisionNo} → ${request.proposedRevisionNo}`,
+                  },
+                  { k: 'Page affected', v: request.pageAffected },
+                  ...(restoredRevision
+                    ? [{ k: 'Restores', v: `Revision ${restoredRevision.revisionNo} — ${restoredRevision.fileName}` }]
+                    : []),
+                  {
+                    k: 'Document level',
+                    v: `${docLevelLabel(request.level)}${request.levelSpecify ? ` (${request.levelSpecify})` : ''}`,
+                  },
+                  { k: 'Category', v: categoryName(request.categoryId) },
+                  { k: 'Department / Section', v: deptName(request.departmentId) },
+                  ...(request.proposed ? [{ k: 'Retention period', v: request.proposed.retentionPeriod }] : []),
+                  ...(request.fileName
+                    ? [
+                        {
+                          k: 'Draft file',
+                          v: (
+                            <span className="inline-flex min-w-0 items-center gap-2">
+                              <FileTypeIcon fileName={request.fileName} size={24} />
+                              <span className="truncate">{request.fileName}</span>
+                            </span>
+                          ),
+                        },
+                      ]
+                    : []),
+                ]}
+              />
+            </Section>
 
-          <Section title="Originator (process owner)">
-            <KeyValue
-              items={[
-                { k: 'Name', v: userName(request.originator.personnelId || request.originator.accountId) },
-                { k: 'Position', v: request.originator.position },
-                {
-                  k: 'Department / Section',
-                  v: originatorAccount?.departmentId ? deptName(originatorAccount.departmentId) : null,
-                },
-                ...(request.originator.personnelId
-                  ? [{ k: 'Submitted from account', v: originatorAccount?.fullName }]
-                  : []),
-                { k: 'Reason for review / change', v: request.reason },
-              ]}
-            />
-          </Section>
+            <Section title="Originator (process owner)">
+              <KeyValue
+                items={[
+                  { k: 'Name', v: userName(request.originator.personnelId || request.originator.accountId) },
+                  { k: 'Position', v: request.originator.position },
+                  {
+                    k: 'Department / Section',
+                    v: originatorAccount?.departmentId ? deptName(originatorAccount.departmentId) : null,
+                  },
+                  ...(request.originator.personnelId
+                    ? [{ k: 'Submitted from account', v: originatorAccount?.fullName }]
+                    : []),
+                  { k: 'Reason for review / change', v: request.reason },
+                ]}
+              />
+            </Section>
 
-          <Section title="Review" subtitle="Immediate superior or concerned department head">
-            <KeyValue
-              items={[
-                { k: 'Name', v: request.reviewer ? userName(request.reviewer.personnelId) : null },
-                { k: 'Position', v: request.reviewer?.position },
-                { k: 'Date', v: request.reviewer?.date ? formatDate(request.reviewer.date) : null },
-              ]}
-            />
-          </Section>
+            <Section title="Review" subtitle="Immediate superior or concerned department head">
+              <KeyValue
+                items={[
+                  { k: 'Name', v: request.reviewer ? userName(request.reviewer.personnelId) : null },
+                  { k: 'Position', v: request.reviewer?.position },
+                  { k: 'Date', v: request.reviewer?.date ? formatDate(request.reviewer.date) : null },
+                ]}
+              />
+            </Section>
 
-          <Section title="Approval" subtitle="Decided by a QMS Admin">
-            <KeyValue
-              items={[
-                { k: 'Decision', v: request.approval ? <StatusTag status={request.approval.decision} /> : null },
-                { k: 'Decided by', v: request.approval ? userName(request.approval.approvedBy) : null },
-                { k: 'Authorized signatory', v: request.approval?.signatory },
-                { k: 'Position', v: request.approval?.position },
-                { k: 'Date', v: request.approval?.date ? formatDate(request.approval.date) : null },
-                { k: 'Remarks', v: request.approval?.remarks },
-              ]}
-            />
-          </Section>
+            <Section title="Approval" subtitle="Decided by a QMS Admin">
+              <KeyValue
+                items={[
+                  { k: 'Decision', v: request.approval ? <StatusTag status={request.approval.decision} /> : null },
+                  { k: 'Decided by', v: request.approval ? userName(request.approval.approvedBy) : null },
+                  { k: 'Authorized signatory', v: request.approval?.signatory },
+                  { k: 'Position', v: request.approval?.position },
+                  { k: 'Date', v: request.approval?.date ? formatDate(request.approval.date) : null },
+                  { k: 'Remarks', v: request.approval?.remarks },
+                ]}
+              />
+            </Section>
 
-          <Section title="For DCC remarks">
-            <KeyValue
-              items={[
-                { k: 'Disposition', v: request.dcc?.disposition },
-                { k: 'Effective date', v: request.dcc?.effectiveDate ? formatDate(request.dcc.effectiveDate) : null },
-              ]}
-            />
-          </Section>
-        </Card>
+            <Section title="For DCC remarks">
+              <KeyValue
+                items={[
+                  { k: 'Disposition', v: request.dcc?.disposition },
+                  { k: 'Effective date', v: request.dcc?.effectiveDate ? formatDate(request.dcc.effectiveDate) : null },
+                ]}
+              />
+            </Section>
+          </Card>
+
+          {/* ------------------------------------------------------ revision history */}
+          <Card
+            title="Revision history"
+            subtitle={
+              isNew
+                ? `A new document has no earlier versions; revision ${request.proposedRevisionNo} will be its first.`
+                : earlierHidden
+                  ? 'The current approved revision. Earlier revisions are kept on record for QMS Admins.'
+                  : `Every version of ${request.documentCode}, newest first. Earlier versions stay on record as obsolete.`
+            }
+          >
+            {versionItems.length ? (
+              <ActivityFeed items={versionItems} />
+            ) : (
+              <PageState icon={Clock} size="sm" title="No revision history recorded" />
+            )}
+          </Card>
+        </div>
 
         {/* ------------------------------------------------------------ side rail */}
         <div className="flex flex-col gap-4">
@@ -683,6 +794,91 @@ export default function RequestDetail() {
       </div>
 
       {/* ============================== dialogs =============================== */}
+
+      <AppDialog
+        isOpen={Boolean(viewing)}
+        onClose={() => setViewingId(null)}
+        size="md"
+        icon={viewing?.proposed ? Edit03 : RefreshCcw01}
+        iconColor={viewing?.proposed ? 'brand' : viewing?.status === DOC_STATUS.ACTIVE ? 'success' : 'gray'}
+        title={viewing ? `Revision ${viewing.revisionNo}` : ''}
+        subtitle={`${request.documentCode} ${request.title} · version ${versions.length - viewingIndex} of ${versions.length}`}
+        footer={
+          <>
+            <Button
+              color="secondary"
+              size="md"
+              iconLeading={ArrowLeft}
+              isDisabled={viewingIndex >= versions.length - 1}
+              onClick={() => setViewingId(versions[viewingIndex + 1].id)}
+            >
+              Older
+            </Button>
+            <Button
+              color="secondary"
+              size="md"
+              iconTrailing={ArrowRight}
+              isDisabled={viewingIndex <= 0}
+              onClick={() => setViewingId(versions[viewingIndex - 1].id)}
+            >
+              Newer
+            </Button>
+            <Button color="primary" size="md" onClick={() => setViewingId(null)}>
+              Close
+            </Button>
+          </>
+        }
+      >
+        {viewing && (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-2">{versionBadges(viewing)}</div>
+            {viewing.fileName && (
+              <div className="flex items-center gap-3 rounded-lg p-3 ring-1 ring-secondary">
+                <FileTypeIcon fileName={viewing.fileName} size={36} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-primary">{viewing.fileName}</p>
+                  <p className="text-xs text-tertiary">
+                    {viewing.proposed ? 'Draft attached to this request' : 'Retained copy of this revision'}
+                  </p>
+                </div>
+              </div>
+            )}
+            <KeyValue
+              items={[
+                { k: 'Revision no.', v: viewing.revisionNo, mono: true },
+                {
+                  k: 'Effective date',
+                  v: viewing.effectiveDate ? formatDate(viewing.effectiveDate) : 'Set when a QMS Admin approves the request',
+                },
+                { k: viewing.proposed ? 'Proposed by' : 'Revised by', v: userName(viewing.revisedBy) },
+                { k: viewing.proposed ? 'Submitted' : 'Revision date', v: formatDateTime(viewing.revisionDate) },
+                { k: viewing.proposed ? 'Reason for change' : 'Change summary', v: viewing.changeSummary },
+                ...(viewing.restoredFrom
+                  ? [{ k: 'Restores', v: `Revision ${revisionById(viewing.restoredFrom)?.revisionNo}` }]
+                  : []),
+                ...(viewing.requestId
+                  ? [
+                      {
+                        k: 'Released via',
+                        v:
+                          viewing.requestId === request.id ? (
+                            <span className="font-mono">{request.controlNo}</span>
+                          ) : (
+                            <Link
+                              to={path.request(viewing.requestId)}
+                              className="font-mono text-brand-secondary hover:underline"
+                            >
+                              {requestById(viewing.requestId)?.controlNo}
+                            </Link>
+                          ),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </div>
+        )}
+      </AppDialog>
 
       <AppDialog
         isOpen={dialog === 'return'}
